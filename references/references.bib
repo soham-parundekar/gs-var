@@ -1,0 +1,113 @@
+% Sources for the Goldman Sachs VaR reconstruction.
+% Accession numbers, access dates and the project component depending on each
+% source are in source_register.csv. The ten annual reports are listed
+% individually there; the entry below covers the series.
+
+@misc{gs10k,
+  author       = {{The Goldman Sachs Group, Inc.}},
+  title        = {Annual Report on {Form 10-K}},
+  year         = {2017--2026},
+  note         = {Fiscal years 2016 through 2025. CIK 0000886982.
+                  Accession numbers 0001193125-17-056804, 0001193125-18-056383,
+                  0001193125-19-050198, 0001193125-20-043853,
+                  0001193125-21-049380, 0001193125-22-052682,
+                  0000886982-23-000003, 0000886982-24-000006,
+                  0000886982-25-000005 and 0000886982-26-000091.
+                  Accessed 9 October 2026},
+  howpublished = {\url{https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=0000886982&type=10-K}}
+}
+
+@misc{treasurycurve,
+  author       = {{U.S. Department of the Treasury}},
+  title        = {Daily {Treasury} Par Yield Curve Rates},
+  year         = {2026},
+  note         = {Daily series, 2013--2025. Accessed 9 October 2026},
+  howpublished = {\url{https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve}}
+}
+
+@misc{ecbcurve,
+  author       = {{European Central Bank}},
+  title        = {Euro area yield curves: {AAA}-rated central government bonds, spot rates},
+  year         = {2026},
+  note         = {Series YC.B.U2.EUR.4F.G\_N\_A.SV\_C\_YM.SR\_2Y, SR\_5Y, SR\_10Y.
+                  Daily, 2013--2025. Accessed 9 October 2026},
+  howpublished = {\url{https://data.ecb.europa.eu/data/datasets/YC}}
+}
+
+@misc{yahoofinance,
+  author       = {{Yahoo Finance}},
+  title        = {Daily closing prices for equity indices, currency pairs and commodity funds},
+  year         = {2026},
+  note         = {Tickers \^{}GSPC, \^{}STOXX50E, \^{}N225, EEM, EURUSD=X, JPY=X,
+                  GBPUSD=X, GLD, USO, DBB. Retrieved with the yfinance library.
+                  Accessed 9 October 2026},
+  howpublished = {\url{https://finance.yahoo.com}}
+}
+
+@article{kupiec1995,
+  author  = {Kupiec, Paul H.},
+  title   = {Techniques for verifying the accuracy of risk measurement models},
+  journal = {Journal of Derivatives},
+  volume  = {3},
+  pages   = {73--84},
+  year    = {1995},
+  note    = {Working paper version: Finance and Economics Discussion Series
+             95-24, Board of Governors of the Federal Reserve System,
+             \url{https://fedinprint.org/item/fedgfe/34596/original}}
+}
+
+@article{christoffersen1998,
+  author  = {Christoffersen, Peter F.},
+  title   = {Evaluating Interval Forecasts},
+  journal = {International Economic Review},
+  volume  = {39},
+  number  = {4},
+  pages   = {841--862},
+  year    = {1998},
+  month   = nov
+}
+
+@article{hullwhite1998,
+  author  = {Hull, John and White, Alan},
+  title   = {Incorporating volatility updating into the historical simulation
+             method for value-at-risk},
+  journal = {Journal of Risk},
+  volume  = {1},
+  number  = {1},
+  pages   = {5--19},
+  year    = {1998},
+  doi     = {10.21314/JOR.1998.001}
+}
+
+@techreport{bcbs1996,
+  author      = {{Basel Committee on Banking Supervision}},
+  title       = {Supervisory framework for the use of ``backtesting'' in
+                 conjunction with the internal models approach to market risk
+                 capital requirements},
+  institution = {Bank for International Settlements},
+  number      = {BCBS 22},
+  year        = {1996},
+  month       = jan,
+  url         = {https://www.bis.org/publ/bcbs22.htm}
+}
+
+@techreport{riskmetrics1996,
+  author      = {{J.P. Morgan} and {Reuters}},
+  title       = {{RiskMetrics} Technical Document},
+  institution = {J.P. Morgan/Reuters},
+  address     = {New York},
+  edition     = {Fourth},
+  year        = {1996},
+  url         = {https://www.msci.com/research-and-insights/paper/1996-riskmetrics-technical-document}
+}
+
+@misc{mathworkspof,
+  author       = {{The MathWorks, Inc.}},
+  title        = {varbacktest.pof: Proportion of failures test for
+                  value-at-risk backtesting},
+  year         = {2026},
+  note         = {MATLAB Risk Management Toolbox documentation. Used as an
+                  independent reference implementation for validating the
+                  Kupiec statistic. Accessed 9 October 2026},
+  howpublished = {\url{https://www.mathworks.com/help/risk/varbacktest.pof.html}}
+}
