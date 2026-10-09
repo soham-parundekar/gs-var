@@ -1,0 +1,55 @@
+# Every setting the pipeline reads, with the reason it holds that value.
+# Changing a number here changes the run; nothing is duplicated in the scripts.
+
+sample:
+  # Factor history starts two years before the first VaR date so the lookback
+  # window is full from the beginning of the comparison rather than growing
+  # into it.
+  factor_start: "2013-01-01"
+  factor_end: "2026-01-01"
+  first_year: 2016
+  last_year: 2025
+
+engine:
+  # Goldman does not disclose its lookback length. Two years of daily
+  # scenarios is the common industry setting; robustness runs one and three.
+  window: 502
+  alternative_windows: [252, 502, 756]
+
+  # 95% for the risk-management measure Goldman reports, 99% for the
+  # regulatory measure and for the Basel zones, which were calibrated at 99%.
+  quantile: 0.05
+  alternative_quantiles: [0.05, 0.01]
+
+  # Linear interpolation of the loss quantile. The discrete order statistic is
+  # the conservative alternative and moves VaR by 0.02%, so the choice is
+  # reported rather than defended.
+  interpolate: true
+
+calibration:
+  # The fixed book is sized once on a calm year that precedes everything the
+  # backtest scores, so 2020 onward is out of sample with respect to sizing.
+  base_year: 2019
+
+volatility:
+  # RiskMetrics daily decay factor, used for the Hull-White variant.
+  ewma_decay: 0.94
+  # Days used to seed the variance recursion before forecasts are emitted.
+  burn_in: 100
+  # GARCH(1,1) is refitted each January on history available at that point and
+  # needs this many observations before the first fit is attempted.
+  garch_min_history: 750
+
+backtest:
+  # Supervisors assess a rolling year of trading days.
+  rolling_window: 250
+  # The out-of-sample period for the fixed book.
+  out_of_sample_start: "2020-01-01"
+
+data:
+  # SEC rejects requests without a contact address. Override with the
+  # SEC_CONTACT environment variable rather than editing this file.
+  sec_contact_env: "SEC_CONTACT"
+  # Factors must be present on at least this share of the aligned calendar or
+  # the build stops rather than quietly dropping one.
+  minimum_factor_coverage: 0.98

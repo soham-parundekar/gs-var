@@ -1,0 +1,27 @@
+# Raw downloads. Stages 1 and 2 reproduce this directory exactly, and the ten
+# filings alone come to about 95 MB of inline XBRL. What the project reads out
+# of those filings is preserved under references/sec_filings/.
+data/raw/
+
+# Market data, and anything that carries it. The Treasury and ECB curves could
+# be redistributed, but Yahoo Finance's terms do not allow it, and the aligned
+# panel mixes all three. Both files are rebuilt by scripts/02_build_factors.py.
+data/interim/
+data/processed/factor_moves.csv
+
+# Everything else in data/processed is model output or figures parsed from
+# public SEC filings, and is committed so results can be read without a run.
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+.venv/
+venv/
+
+# Editors and operating systems
+.DS_Store
+.vscode/
+.idea/
