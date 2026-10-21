@@ -106,6 +106,18 @@ should be asked to price.
 Work of the US government, public domain, and preserved in full at
 `official_reports/2020_CFTC_InterimStaffReport_NYMEX_WTI_April2020.pdf`.
 
+**REF-022. United States Oil Fund, LP (2020).** Current Report on Form 8-K,
+exhibit 99.1, filed April 2020, CIK 0001327068. Announces the one-for-eight
+reverse share split effective after the close on 28 April 2020, with post-split
+shares trading from 29 April. The reason split-adjusted closes are used: on
+unadjusted closes the split reads as a 700% overnight gain in the middle of the
+2020 stress window.
+<https://www.sec.gov/Archives/edgar/data/1327068/000117120020000271/i20263_ex99-1.htm>
+
+SEC filings are public and freely redistributable. Only the exhibit was read,
+for the ratio and the effective date, and no copy is stored because the single
+fact taken from it is recorded above.
+
 **REF-020. Boudoukh, Jacob, Richardson, Matthew and Whitelaw, Robert (1998).**
 "The Best of Both Worlds: A Hybrid Approach to Calculating Value at Risk."
 DOI [10.2139/ssrn.51420](https://doi.org/10.2139/ssrn.51420). The age-weighted
@@ -164,3 +176,4 @@ statistic in this project: 1,043 observations with 57 failures at 95% gives
 | REF-019 | `tests/test_backtest.py` |
 | REF-020 | `historical_sim.age_weights`, the age-weighted engine runs |
 | REF-021 | `factors.COMMODITY_FUNDS`, the choice of funds over futures |
+| REF-022 | `factors.market_closes`, the use of split-adjusted closes |
