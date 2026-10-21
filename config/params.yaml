@@ -35,6 +35,14 @@ engine:
   age_decay: 1.0
   alternative_age_decays: [1.0, 0.99, 0.97]
 
+  # A dense grid over the same parameter, to establish rather than assert that
+  # no decay rate reproduces the disclosed steadiness. The three rates above
+  # are what the results table reports; this grid is what the monotonicity
+  # claim rests on. Half-lives run from about 6.6 trading days at 0.90 to
+  # unbounded at 1.0.
+  age_decay_sweep: [1.0, 0.9995, 0.999, 0.998, 0.997, 0.995, 0.993, 0.99,
+                    0.985, 0.98, 0.97, 0.96, 0.95, 0.94, 0.92, 0.90]
+
   # 95% for the risk-management measure Goldman reports, 99% for the
   # regulatory measure and for the Basel zones, which were calibrated at 99%.
   quantile: 0.05

@@ -62,11 +62,13 @@ def main() -> int:
     signs = sign_sweep(moves, levels, disclosures, goldman)
     windows = window_sweep(moves, levels, disclosures, goldman)
     weighting = weighting_sweep(moves, levels, disclosures, goldman)
+    dense = decay_grid(moves, levels, disclosures, goldman)
     conventions = percentile_sweep(moves, levels, disclosures)
 
     signs.to_csv(PROCESSED / "robustness_sign_variants.csv", index=False)
     windows.to_csv(PROCESSED / "robustness_windows.csv", index=False)
     weighting.to_csv(PROCESSED / "robustness_age_weighting.csv", index=False)
+    dense.to_csv(PROCESSED / "robustness_decay_grid.csv", index=False)
     conventions.to_csv(PROCESSED / "robustness_percentile.csv", index=False)
     return 0
 
@@ -176,6 +178,48 @@ def weighting_sweep(moves, levels, disclosures, goldman) -> pd.DataFrame:
     print(frame.round(3).to_string(index=False))
     print(f"  Goldman's year-to-year standard deviation is {goldman.std():.2f} pp; "
           f"the steadiest decay rate here manages {frame['std_across_years'].min():.2f} pp\n")
+    return frame
+
+
+def decay_grid(moves, levels, disclosures, goldman) -> pd.DataFrame:
+    """A dense sweep over the age-decay rate, at the disclosed window.
+
+    The three-rate table answers "what does the disclosed weighting do". This
+    answers the harder question a reader will ask next: is there any rate that
+    reproduces the disclosed steadiness? Asserting monotonicity is not the same
+    as showing it, and the sweep costs about two minutes.
+    """
+    rows = []
+    for decay in CONFIG["engine"]["age_decay_sweep"]:
+        settings = CONFIG.settings(age_decay=decay)
+        targets = calibration.sleeve_targets(disclosures, BASE_YEAR)
+        positions = calibration.calibrate(moves, levels, targets, BASE_YEAR, settings)
+        daily = hs.run(positions, moves, levels, settings, start=CONFIG.start, end=CONFIG.end)
+        ratio = hs.annual_summary(daily)["diversification_pct"]
+        scored = bt.summary(daily["realised_pnl_next"], daily["var_total"], settings.quantile)
+        half_life = float("inf") if decay == 1.0 else math.log(0.5) / math.log(decay)
+        rows.append(
+            {
+                "age_decay": decay,
+                "half_life_days": half_life,
+                "mean_diversification_pct": ratio.mean(),
+                "std_across_years": ratio.std(),
+                "exception_rate_pct": scored["exception_rate_pct"],
+                "kupiec_p_value": scored["kupiec_p_value"],
+            }
+        )
+
+    frame = pd.DataFrame(rows)
+    print("dense decay grid at the disclosed window")
+    print(frame.round(3).to_string(index=False))
+
+    # The claim the grid exists to test.
+    steadiest = frame.loc[frame.std_across_years.idxmin()]
+    monotone = frame.sort_values("age_decay").std_across_years.is_monotonic_decreasing
+    print(f"\n  steadiest rate in the grid: decay {steadiest.age_decay} at "
+          f"{steadiest.std_across_years:.2f} pp, against Goldman's {goldman.std():.2f}")
+    print(f"  steadiness monotone in decay across the grid: {monotone}")
+    print(f"  no rate reaches Goldman: {bool(frame.std_across_years.min() > goldman.std())}\n")
     return frame
 
 
