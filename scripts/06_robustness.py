@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """How much of the result survives the choices that had to be made.
 
-Three of them are tested here.
+Four of them are tested here.
 
 Sleeve direction is the one that matters. The base book is long everything
 because Goldman does not disclose the sign of its net exposures, and the
 diversification effect depends on those signs far more than on anything else
 in the specification. All sixteen combinations are run.
 
-Lookback window is undisclosed. Two years is the industry default; one and
-three years are run beside it.
+Lookback window is disclosed, at five years, and that is the baseline. One,
+two and three years are run beside it anyway, because the gradient across
+them is what says how much of any stability gap belongs to the window rather
+than to the book being held fixed.
+
+Age weighting is disclosed in kind but not in degree: the filings say the
+importance of the data reduces over time without giving the rate. Equal
+weighting is the control; two decay rates from the literature bracket it.
 
 Percentile convention is undisclosed. Linear interpolation is the default;
 the discrete order statistic is the conservative alternative.
@@ -17,6 +23,7 @@ the discrete order statistic is the conservative alternative.
 
 from __future__ import annotations
 
+import math
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -54,10 +61,12 @@ def main() -> int:
 
     signs = sign_sweep(moves, levels, disclosures, goldman)
     windows = window_sweep(moves, levels, disclosures, goldman)
+    weighting = weighting_sweep(moves, levels, disclosures, goldman)
     conventions = percentile_sweep(moves, levels, disclosures)
 
     signs.to_csv(PROCESSED / "robustness_sign_variants.csv", index=False)
     windows.to_csv(PROCESSED / "robustness_windows.csv", index=False)
+    weighting.to_csv(PROCESSED / "robustness_age_weighting.csv", index=False)
     conventions.to_csv(PROCESSED / "robustness_percentile.csv", index=False)
     return 0
 
@@ -123,6 +132,50 @@ def window_sweep(moves, levels, disclosures, goldman) -> pd.DataFrame:
     frame = pd.DataFrame(rows)
     print("lookback window")
     print(frame.round(3).to_string(index=False), "\n")
+    return frame
+
+
+def weighting_sweep(moves, levels, disclosures, goldman) -> pd.DataFrame:
+    """Diversification and backtest results across scenario age-decay rates.
+
+    Run at the disclosed window, so the only thing moving between rows is how
+    fast the weight on an old scenario falls away. The reason this matters for
+    the headline result is that age weighting is the mechanism by which a bank
+    can hold a risk measure responsive to current conditions without changing
+    its positions, which is the explanation a static book cannot offer.
+    """
+    rows = []
+    for decay in CONFIG["engine"]["alternative_age_decays"]:
+        settings = CONFIG.settings(age_decay=decay)
+        targets = calibration.sleeve_targets(disclosures, BASE_YEAR)
+        positions = calibration.calibrate(moves, levels, targets, BASE_YEAR, settings)
+        daily = hs.run(positions, moves, levels, settings, start=CONFIG.start, end=CONFIG.end)
+        annual = hs.annual_summary(daily)
+
+        scored = bt.summary(daily["realised_pnl_next"], daily["var_total"], settings.quantile)
+        ratio = annual["diversification_pct"]
+        # Half-life in trading days, which is the readable form of the rate.
+        half_life = float("inf") if decay == 1.0 else math.log(0.5) / math.log(decay)
+        rows.append(
+            {
+                "age_decay": decay,
+                "half_life_days": half_life,
+                "window_days": settings.window,
+                "mean_diversification_pct": ratio.mean(),
+                "std_across_years": ratio.std(),
+                "mean_absolute_gap_vs_goldman_pp": (ratio - goldman.reindex(ratio.index)).abs().mean(),
+                "exceptions": scored["exceptions"],
+                "exception_rate_pct": scored["exception_rate_pct"],
+                "kupiec_p_value": scored["kupiec_p_value"],
+                "independence_p_value": scored["independence_p_value"],
+            }
+        )
+
+    frame = pd.DataFrame(rows)
+    print("scenario age weighting, at the disclosed five-year window")
+    print(frame.round(3).to_string(index=False))
+    print(f"  Goldman's year-to-year standard deviation is {goldman.std():.2f} pp; "
+          f"the steadiest decay rate here manages {frame['std_across_years'].min():.2f} pp\n")
     return frame
 
 

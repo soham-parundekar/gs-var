@@ -49,13 +49,13 @@ Figures used in this project are as first reported.
 ## Data sources
 
 **REF-011. U.S. Department of the Treasury, Daily Treasury Par Yield Curve
-Rates.** Par yields at 2, 5, 10 and 30 years, 2013 to 2025. US government work,
+Rates.** Par yields at 2, 5, 10 and 30 years, 2010 to 2025. US government work,
 public domain.
 <https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?type=daily_treasury_yield_curve>
 
 **REF-012. European Central Bank, euro area yield curves, AAA-rated central
 government bonds, spot rates.** Series `YC.B.U2.EUR.4F.G_N_A.SV_C_YM.SR_2Y`,
-`SR_5Y` and `SR_10Y`, 2013 to 2025. Reusable with attribution.
+`SR_5Y` and `SR_10Y`, 2010 to 2025. Reusable with attribution.
 <https://data.ecb.europa.eu/data/datasets/YC>
 
 **REF-013. Yahoo Finance, daily closing prices**, retrieved with the `yfinance`
@@ -91,6 +91,22 @@ Risk*, Vol. 1, No. 1, pp. 5-19. DOI
 [10.21314/JOR.1998.001](https://doi.org/10.21314/JOR.1998.001). The
 volatility-weighted variant implemented in `volatility.py`. Copyrighted;
 available from the publisher at the DOI.
+
+**REF-020. Boudoukh, Jacob, Richardson, Matthew and Whitelaw, Robert (1998).**
+"The Best of Both Worlds: A Hybrid Approach to Calculating Value at Risk."
+DOI [10.2139/ssrn.51420](https://doi.org/10.2139/ssrn.51420). The age-weighted
+historical simulation scheme implemented in `historical_sim.age_weights`, in
+which a scenario k days old enters the quantile with weight proportional to a
+decay factor raised to k. This is the method Goldman describes when it states
+that the importance of its historical data reduces over time.
+
+The reference is to the working paper, which is what was verified: Crossref
+registers this DOI with these three authors and an issue year of 1998. The
+work also appeared in *Risk* magazine the same year, but Crossref does not
+hold that version's volume and page numbers and they were not confirmed
+independently, so they are not recorded here. Only the metadata above is
+verified; the full text was not obtained, and the decay rates used in this
+project were chosen for their half-lives rather than taken from the paper.
 
 **REF-017. Basel Committee on Banking Supervision (1996).** "Supervisory
 framework for the use of 'backtesting' in conjunction with the internal models
@@ -132,3 +148,4 @@ statistic in this project: 1,043 observations with 57 failures at 95% gives
 | REF-017 | `backtest.basel_zone_bounds`, `backtest.rolling_zone` |
 | REF-018 | `volatility.ewma_forecast` |
 | REF-019 | `tests/test_backtest.py` |
+| REF-020 | `historical_sim.age_weights`, the age-weighted engine runs |

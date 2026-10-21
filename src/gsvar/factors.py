@@ -72,6 +72,32 @@ _ECB_CSV = (
 )
 
 
+#: A cached series is allowed to stop short of the requested end by this many
+#: calendar days. The live sources stop at the last date they have, so
+#: requiring the cache to reach the requested end exactly would re-download on
+#: every run; requiring nothing would serve a truncated panel after the window
+#: or the sample period is widened, which is the failure this guards.
+_CACHE_END_TOLERANCE_DAYS = 14
+
+
+def _cache_covers(frame: pd.DataFrame, start: str, end: str) -> bool:
+    """Whether a cached series spans the requested period.
+
+    Checking only that the file exists is not enough. The sample start moved
+    back by three years when the disclosed five-year window was adopted, and a
+    presence-only check went on serving the old panel: the config said 2010
+    and the data began in 2013, with nothing to show that the two disagreed.
+    """
+    if frame.empty:
+        return False
+    first, last = frame.index.min(), frame.index.max()
+    wanted_start, wanted_end = pd.Timestamp(start), pd.Timestamp(end)
+    return bool(
+        first <= wanted_start
+        and last >= wanted_end - pd.Timedelta(days=_CACHE_END_TOLERANCE_DAYS)
+    )
+
+
 def market_closes(tickers: list[str], start: str, end: str, cache: Path) -> pd.DataFrame:
     """Daily closes for exchange-traded instruments, adjusted for splits.
 
@@ -83,7 +109,7 @@ def market_closes(tickers: list[str], start: str, end: str, cache: Path) -> pd.D
     cached = cache / "market_closes.csv"
     if cached.exists():
         frame = pd.read_csv(cached, index_col=0, parse_dates=True)
-        if set(tickers).issubset(frame.columns):
+        if set(tickers).issubset(frame.columns) and _cache_covers(frame, start, end):
             return frame.loc[start:end, tickers]
 
     import yfinance as yf
@@ -105,7 +131,10 @@ def treasury_par_curve(start_year: int, end_year: int, cache: Path) -> pd.DataFr
     """
     cached = cache / "treasury_par_curve.csv"
     if cached.exists():
-        return pd.read_csv(cached, index_col=0, parse_dates=True)
+        frame = pd.read_csv(cached, index_col=0, parse_dates=True)
+        # Treasury is requested by whole year, so the coverage test is on years.
+        if _cache_covers(frame, f"{start_year}-12-31", f"{end_year}-01-01"):
+            return frame
 
     years = []
     for year in range(start_year, end_year + 1):
@@ -129,7 +158,9 @@ def euro_area_curve(start: str, end: str, cache: Path) -> pd.DataFrame:
     """
     cached = cache / "euro_area_curve.csv"
     if cached.exists():
-        return pd.read_csv(cached, index_col=0, parse_dates=True)
+        frame = pd.read_csv(cached, index_col=0, parse_dates=True)
+        if _cache_covers(frame, start, end):
+            return frame
 
     columns = {}
     for series, tenor in EURO_TENORS.items():

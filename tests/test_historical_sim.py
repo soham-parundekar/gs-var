@@ -204,3 +204,84 @@ def test_window_longer_than_the_sample_is_refused():
     positions, moves, levels = toy_inputs(days=100)
     with pytest.raises(ValueError):
         hs.run(positions, moves, levels, hs.Settings(window=500))
+
+
+def test_age_weights_normalise_and_favour_recent_scenarios():
+    """Newest last, monotone in recency, summing to one."""
+    weights = hs.age_weights(5, decay=0.9)
+    assert weights.sum() == pytest.approx(1.0)
+    assert np.all(np.diff(weights) > 0)  # oldest first, so weight rises
+    # The newest scenario should outweigh the oldest by decay**(n-1).
+    assert weights[0] / weights[-1] == pytest.approx(0.9**4)
+    assert hs.age_weights(5, decay=1.0) == pytest.approx(np.full(5, 0.2))
+
+
+@pytest.mark.parametrize("quantile", [0.01, 0.05, 0.10, 0.25])
+@pytest.mark.parametrize("count", [20, 100, 251, 502])
+def test_equal_weights_reproduce_the_unweighted_percentile(count, quantile):
+    """The weighted estimator must collapse onto the unweighted one.
+
+    This is the test that makes the age-weighted runs interpretable. If the
+    two paths disagreed at equal weights, any difference between a weighted
+    and an unweighted run would mix the weighting with a change of estimator,
+    and the comparison the paper rests on would not be clean.
+    """
+    rng = np.random.default_rng(count * 1000 + int(quantile * 100))
+    pnl = rng.standard_normal(count) * 3.0 - 0.1
+
+    for interpolate in (True, False):
+        settings = hs.Settings(
+            window=count, quantile=quantile, interpolate=interpolate, age_decay=1.0
+        )
+        plain = hs.var_from_scenarios(pnl, settings)
+        weighted = hs.var_from_scenarios(
+            pnl, settings, hs.age_weights(count, decay=1.0)
+        )
+        assert weighted == pytest.approx(plain, rel=0, abs=1e-12)
+
+
+def test_age_weighting_responds_to_where_the_loss_sits_in_the_window():
+    """Same scenario set, one extreme loss moved from old to recent.
+
+    Age weighting should raise VaR when the bad day is recent and lower it
+    when the bad day is stale. A test on the level alone would pass for an
+    estimator that ignored the ordering entirely, so the ordering is what is
+    asserted here.
+    """
+    calm = -np.ones(99, dtype=float)
+    stale = np.concatenate([[-50.0], calm])  # worst day is the oldest
+    recent = np.concatenate([calm, [-50.0]])  # worst day is the newest
+
+    # The quantile has to sit above the newest scenario's own weight for its
+    # position in the window to bite at all: at 0.97 over 100 days the newest
+    # day carries about 3.1% of the mass, so a 5% tail swallows it either way.
+    settings = hs.Settings(window=100, quantile=0.02, age_decay=0.97)
+    weights = hs.age_weights(100, decay=0.97)
+
+    var_stale = hs.var_from_scenarios(stale, settings, weights)
+    var_recent = hs.var_from_scenarios(recent, settings, weights)
+    assert var_recent > var_stale
+
+    # Unweighted, the position of the bad day is irrelevant.
+    flat = hs.Settings(window=100, quantile=0.02)
+    assert hs.var_from_scenarios(stale, flat) == pytest.approx(
+        hs.var_from_scenarios(recent, flat)
+    )
+
+
+def test_engine_accepts_the_disclosed_window_and_weighting_together():
+    """A smoke test that the two disclosed settings compose in `run`."""
+    columns = ["equity_us"]
+    rng = np.random.default_rng(7)
+    moves = pd.DataFrame(
+        rng.standard_normal(400) * 0.01,
+        index=pd.bdate_range("2019-01-01", periods=400),
+        columns=columns,
+    )
+    levels = pd.DataFrame(1.0, index=moves.index, columns=columns)
+    positions = [book.Position("equity_us", "equity_prices", book.LINEAR, 1_000_000.0)]
+
+    settings = hs.Settings(window=252, quantile=0.05, age_decay=0.97)
+    frame = hs.run(positions, moves, levels, settings)
+    assert len(frame) == 400 - 252  # one date lost to the next-day result
+    assert (frame["var_equity_prices"] > 0).all()

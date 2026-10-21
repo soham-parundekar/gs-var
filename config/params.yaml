@@ -2,19 +2,38 @@
 # Changing a number here changes the run; nothing is duplicated in the scripts.
 
 sample:
-  # Factor history starts two years before the first VaR date so the lookback
-  # window is full from the beginning of the comparison rather than growing
-  # into it.
-  factor_start: "2013-01-01"
+  # Factor history has to cover the longest lookback window before the first
+  # VaR date, so the window is full from the beginning of the comparison
+  # rather than growing into it. The disclosed window is five years, and the
+  # aligned calendar keeps only days when every market traded, which costs
+  # about 9% of trading days: five years of scenarios therefore needs closer
+  # to six calendar years of history. 2010 leaves margin.
+  factor_start: "2010-01-01"
   factor_end: "2026-01-01"
   first_year: 2016
   last_year: 2025
 
 engine:
-  # Goldman does not disclose its lookback length. Two years of daily
-  # scenarios is the common industry setting; robustness runs one and three.
-  window: 502
-  alternative_windows: [252, 502, 756]
+  # Every filing in the sample states that Goldman samples from five years of
+  # historical data, so 1260 trading days is the disclosed setting rather than
+  # an assumption. Shorter equally weighted windows are kept beside it: the
+  # comparison between them is what separates the effect of window length from
+  # the effect of holding the book fixed.
+  window: 1260
+  alternative_windows: [252, 502, 756, 1260]
+
+  # The same filings state that "the historical data is weighted so that the
+  # relative importance of the data reduces over time," which is age
+  # weighting: a scenario k days old enters with weight proportional to
+  # age_decay**k. The scheme is disclosed, the rate is not, so the baseline
+  # stays at 1.0 (equal weighting) to keep an undisclosed parameter out of it
+  # and the rate is swept instead. 0.99 and 0.97 give half-lives of about
+  # three months and three weeks, which brackets a decay fast enough to
+  # matter and slow enough to leave five years of data doing some work.
+  # Neither value was chosen by looking at how close it lands to the
+  # disclosures.
+  age_decay: 1.0
+  alternative_age_decays: [1.0, 0.99, 0.97]
 
   # 95% for the risk-management measure Goldman reports, 99% for the
   # regulatory measure and for the Basel zones, which were calibrated at 99%.

@@ -25,10 +25,14 @@ comparable and is never claimed to be.
 Goldman describes its model the same way in every filing in the sample: a
 one-day horizon at 95% confidence, a single VaR model covering interest rate,
 equity price, currency rate and commodity price risk, computed by historical
-simulation with full valuation of approximately 70,000 market factors. The
-diversification effect is defined in the filings as the difference between total
-VaR and the sum of the four category VaRs, arising because the categories are
-not perfectly correlated.
+simulation with full valuation, shocking the relevant market factors for each
+position simultaneously. The FY2016 and FY2017 filings put the factor count at
+approximately 70,000; later filings drop the number. Two further details are
+stated in every filing and matter more than they look: the scenarios are drawn
+from five years of historical data, and that data is weighted so the importance
+of older observations decays. The diversification effect is defined in the
+filings as the difference between total VaR and the sum of the four category
+VaRs, arising because the categories are not perfectly correlated.
 
 Across FY2016 to FY2025 that effect has been remarkably steady:
 
@@ -49,8 +53,9 @@ Average daily VaR, $ millions, as first reported. Mean 42.0%, standard
 deviation 2.08 percentage points, range 39.0 to 45.5.
 
 Total VaR nearly doubled between 2019 and 2022 and the diversification ratio
-moved by four points. That stability across a decade containing a pandemic and
-the fastest tightening cycle since the 1980s is the thing worth testing.
+moved by four points. That stability across a decade containing a pandemic, a
+zero-rate period and more than 500 basis points of policy tightening is the
+thing worth testing.
 
 Three hypotheses follow.
 
@@ -63,10 +68,12 @@ range.
 **H3.** Its exceptions are consistent with a well-calibrated 95% model under
 Kupiec's and Christoffersen's tests.
 
-H1 holds on average. H2 fails, and the way it fails is the most informative
-result here. H3 fails on independence while passing on count, which is the
-classic signature of historical simulation and the reason the volatility-weighted
-variant exists.
+H1 holds: the fixed book averages 41.6% against 42.0%. H2 fails, and the way it
+fails is the most informative result here — it fails at the disclosed window,
+and it fails worse once the disclosed age weighting is added, which rules out
+the explanation that the replication is simply using a blunter method than the
+bank. H3 fails outright at the disclosed window, on count as well as on
+independence, and the volatility-weighted variant repairs it.
 
 ## 2. Data
 
@@ -190,12 +197,14 @@ backtested, because only its notionals were set before the data it is scored on.
 
 ### The engine
 
-For each valuation date, the scenario set is the previous 502 trading days of
-factor moves, about two years, applied to the book as it stands at that day's
-market levels. The 5% quantile of the resulting profit and loss distribution is
-the VaR, reported as a positive loss. Category VaR uses only that category's
-positions; total VaR moves every factor together, historical day by historical
-day. The diversification effect is total minus the sum of the four.
+For each valuation date, the scenario set is the previous 1,260 trading days of
+factor moves, applied to the book as it stands at that day's market levels. The
+length is not a guess: every filing in the sample states that Goldman samples
+from five years of historical data. The 5% quantile of the resulting profit and
+loss distribution is the VaR, reported as a positive loss. Category VaR uses
+only that category's positions; total VaR moves every factor together,
+historical day by historical day. The diversification effect is total minus the
+sum of the four.
 
 VaR stamped with date t is compared against the profit and loss realised on t+1,
 which is Goldman's own stated convention: daily net revenues are compared with
@@ -203,8 +212,18 @@ VaR calculated as of the end of the prior business day. No quantity dated t+1
 enters the VaR dated t, and a test enforces this by rewriting every move after a
 cut-off and checking that nothing on or before it changed.
 
-Window length and the percentile convention are not disclosed. Two years and
-linear interpolation are the defaults; both alternatives are run in section 6.
+Two settings in the filings deserve more attention than the VaR tables usually
+get. The window is one. The other is that "the historical data is weighted so
+that the relative importance of the data reduces over time," which is age
+weighting: a scenario k days old enters with weight proportional to some decay
+raised to k. The scheme is disclosed; the rate is not. The baseline here
+therefore uses the disclosed window with equal weights, so that no undisclosed
+parameter sits inside it, and section 6 runs the weighting as a grid. That
+grid turns out to matter more than any other choice in this report.
+
+The percentile convention is also undisclosed. Linear interpolation is the
+default and the discrete order statistic is run alongside it in section 6,
+where it moves the VaR level by 0.3%.
 
 ## 4. Results
 
@@ -212,29 +231,41 @@ linear interpolation are the defaults; both alternatives are run in section 6.
 
 | Year | Goldman | Recalibrated book | Fixed book | Total VaR error |
 |---|---|---|---|---|
-| 2016 | 41.7 | 47.0 | 47.3 | −9.1% |
-| 2017 | 39.3 | 44.7 | 44.8 | −8.9% |
-| 2018 | 41.2 | 43.2 | 40.8 | −3.4% |
-| 2019 | 41.7 | 42.8 | 42.8 | −2.0% |
-| 2020 | 44.4 | 51.1 | 47.3 | −12.0% |
-| 2021 | 39.0 | 50.3 | 48.8 | −18.6% |
-| 2022 | 45.5 | 42.1 | 35.2 | +6.2% |
-| 2023 | 41.1 | 33.7 | 28.3 | +12.6% |
-| 2024 | 43.6 | 33.8 | 24.3 | +17.2% |
-| 2025 | 43.0 | 39.4 | 30.0 | +6.4% |
-| **Mean** | **42.0** | **42.8** | **39.0** | |
-| **Std dev** | **2.08** | **5.98** | **8.87** | |
+| 2016 | 41.7 | 53.9 | 49.3 | −21.0% |
+| 2017 | 39.3 | 47.6 | 46.1 | −13.7% |
+| 2018 | 41.2 | 44.8 | 43.2 | −6.1% |
+| 2019 | 41.7 | 45.1 | 45.1 | −5.8% |
+| 2020 | 44.4 | 49.6 | 45.5 | −9.4% |
+| 2021 | 39.0 | 48.1 | 45.9 | −14.9% |
+| 2022 | 45.5 | 43.6 | 42.4 | +3.3% |
+| 2023 | 41.1 | 37.7 | 34.5 | +5.7% |
+| 2024 | 43.6 | 39.1 | 32.3 | +8.0% |
+| 2025 | 43.0 | 37.9 | 31.9 | +9.1% |
+| **Mean** | **42.0** | **44.7** | **41.6** | |
+| **Std dev** | **2.08** | **5.35** | **6.33** | |
 
-H1 holds. The recalibrated book averages 42.8% against Goldman's 42.0%, well
-inside the disclosed range.
+H1 holds, and the fixed book holds it more tightly than the recalibrated one:
+41.6% against Goldman's 42.0%, a gap of four tenths of a point over ten years.
+Resizing the book annually to the disclosed split pushes the average up to
+44.7%, which is outside the disclosed range of 39.0 to 45.5 on the high side.
+The fixed book is the cleaner comparison in any case, since its notionals were
+set on 2019 and never touched afterwards.
 
-H2 fails. The model's ratio swings three times as much year to year, and the
-error in total VaR changes sign in 2022: the proxy book over-diversifies before
-then, understating total VaR by up to 18.6%, and under-diversifies afterwards,
-overstating it by up to 17.2%. The turn is the equity-bond correlation flipping
-positive in the inflation regime, which removes the main diversifier from a
-directional book. Goldman's ratio went *up* that year, to its sample maximum of
-45.5%.
+H2 fails, and it fails in a more specific way than a variance comparison
+conveys. Both model series decline monotonically in the second half of the
+sample: the recalibrated ratio falls at 1.49 points a year, with a regression
+on the year index giving *p* = 0.002 and R² = 0.71. Goldman's series has no
+trend at all (*p* = 0.23). The error in total VaR changes sign in 2022, from
+over-diversifying and understating total VaR by up to 21.0% to
+under-diversifying and overstating it by up to 9.1%. The turn is the
+equity-bond correlation flipping positive in the inflation regime, which
+removes the main diversifier from a directional book. Goldman's ratio went *up*
+that year, to its sample maximum of 45.5%.
+
+The drift is what a five-year equally weighted window does to a book that
+never changes. As the window rolls forward it swallows the inflation-era
+correlation structure and never sheds it, so the measured diversification
+decays. A dealer repositioning daily has no such ratchet.
 
 ### Is it the long-only assumption?
 
@@ -245,13 +276,15 @@ line up, all sixteen sign combinations were run on the fixed book.
 | | Mean ratio | Year-to-year std dev |
 |---|---|---|
 | Goldman | 42.0 | 2.08 |
-| Seven variants averaging ≥ 40% | 40.5 to 45.7 | 8.66 to 10.77 |
-| Four variants with std dev ≤ 3.1 | 28.5 to 35.6 | 2.19 to 3.02 |
+| Eight variants averaging ≥ 40% | 41.6 to 48.0 | 3.68 to 7.62 |
+| Five variants with std dev ≤ 2.08 | 29.0 to 35.6 | 1.76 to 2.06 |
 
-The two properties trade off and no configuration reaches both corners. The
-steadiest book in the set varies by 2.19 points a year, which is Goldman's 2.08
-almost exactly, but it averages 33.9%. Every book that averages 40% or more
-swings by at least 8.66 points.
+The two properties trade off and no configuration reaches both corners. Taking
+Goldman's own standard deviation as the bar rather than a round number, five of
+the sixteen books are at least that steady, and the best of them averages
+35.6%, six points below the disclosure. Eight books average 40% or more, and
+the steadiest of those varies by 3.68 points a year, three quarters again as
+much as Goldman. Nothing in the set does both.
 
 That is the central finding. The level is easy and the steadiness is not. A
 static four-sleeve book with fixed signs cannot hold a diversification ratio
@@ -263,6 +296,13 @@ commentary attributes year-over-year VaR changes to exposure changes as well as
 volatility, and the Q1 2023 scope change shows them moving positions in and out
 of the measure.
 
+The obvious objection is that the gap is an artifact of a cruder method than
+Goldman's. Section 6 tests that directly, by adopting the disclosed window and
+then the disclosed age weighting. Neither closes the gap, and the weighting
+widens it while making the engine a demonstrably better risk model. The gap
+survives being handed the bank's own methodology, which is the strongest
+version of this result the public data supports.
+
 ### Does the model's VaR move when Goldman's does?
 
 The fixed book answers this one, because its exposures never change and its
@@ -270,21 +310,21 @@ VaR therefore responds only to the market.
 
 | Year | Model average VaR | Change | Goldman | Change | Same direction |
 |---|---|---|---|---|---|
-| 2016 | 62.6 | | 63 | | |
-| 2017 | 64.4 | +2.9% | 54 | −14.3% | no |
-| 2018 | 56.9 | −11.8% | 60 | +11.1% | no |
-| 2019 | 54.9 | −3.5% | 56 | −6.7% | yes |
-| 2020 | 60.7 | +10.6% | 94 | +67.9% | yes |
-| 2021 | 59.6 | −1.7% | 86 | −8.5% | yes |
-| 2022 | 96.4 | +61.5% | 114 | +32.6% | yes |
-| 2023 | 132.1 | +37.1% | 99 | −13.2% | no |
-| 2024 | 134.6 | +2.0% | 92 | −7.1% | no |
-| 2025 | 104.3 | −22.6% | 90 | −2.2% | yes |
+| 2016 | 60.8 | | 63 | | |
+| 2017 | 56.2 | −7.6% | 54 | −14.3% | yes |
+| 2018 | 55.4 | −1.5% | 60 | +11.1% | no |
+| 2019 | 52.7 | −4.8% | 56 | −6.7% | yes |
+| 2020 | 56.3 | +6.7% | 94 | +67.9% | yes |
+| 2021 | 52.9 | −5.9% | 86 | −8.5% | yes |
+| 2022 | 63.1 | +19.3% | 114 | +32.6% | yes |
+| 2023 | 89.1 | +41.0% | 99 | −13.2% | no |
+| 2024 | 97.0 | +9.0% | 92 | −7.1% | no |
+| 2025 | 102.4 | +5.5% | 90 | −2.2% | no |
 
 Five of nine years agree on direction. Pearson correlation on the changes is
-0.29 (p = 0.45) and Spearman's rank correlation is −0.02 (p = 0.97). There is
+0.07 (p = 0.86) and Spearman's rank correlation is 0.32 (p = 0.41). There is
 no relationship worth reporting, and the average gap between the two
-percentage changes is 24 points.
+percentage changes is 20 points.
 
 That is a clean negative result, and the filings say why. Goldman explains its
 own year-over-year VaR change in every annual report, and in four consecutive
@@ -305,30 +345,41 @@ years the explanation has the same shape:
 Goldman moved exposure against volatility in each of those years, and in 2024
 as well. A book that holds its positions still cannot reproduce a path
 produced by a desk that trades against the market, and the 2023 divergence is
-exactly that: model VaR rose 37% as the 2022 scenarios sat in the window,
+exactly that: model VaR rose 41% as the 2022 scenarios sat in the window,
 while Goldman's fell 13% as volatility subsided and they added exposure into
-it. The ten extracted sentences are in
-`data/processed/disclosed_var_commentary.csv`.
+it. The five-year window makes the divergence worse rather than better, since
+the 2022 scenarios stay in the set through 2025 and the model's VaR is still
+climbing in the last year of the sample while Goldman's drifts down. The ten
+extracted sentences are in `data/processed/disclosed_var_commentary.csv`.
 
 ### Regimes
 
 | Regime | Days | Mean VaR | Diversification | Realised P&L sd | Exception rate | Equity vol (ann.) | 10y vol (bp/day) |
 |---|---|---|---|---|---|---|---|
-| calm 2017-2019 | 687 | 58.8 | 42.8% | 31.7 | 4.2% | 12.7% | 4.0 |
-| COVID shock 2020 | 82 | 61.5 | 45.7% | 75.0 | 12.2% | 57.2% | 8.8 |
-| recovery 2021 | 231 | 59.7 | 48.8% | 34.4 | 4.8% | 13.7% | 4.5 |
-| rate shock 2022 | 195 | 102.1 | 34.3% | 102.8 | 20.0% | 25.4% | 8.4 |
-| after 2024-2025 | 452 | 119.6 | 27.2% | 53.6 | 1.6% | 16.7% | 5.8 |
+| calm 2017-2019 | 687 | 54.8 | 44.8% | 28.7 | 3.5% | 12.7% | 4.0 |
+| COVID shock 2020 | 82 | 56.8 | 45.4% | 67.9 | 11.0% | 57.2% | 8.8 |
+| recovery 2021 | 231 | 52.9 | 45.8% | 31.0 | 4.8% | 13.7% | 4.5 |
+| rate shock 2022 | 195 | 64.9 | 42.3% | 94.9 | 32.3% | 25.4% | 8.4 |
+| after the shock 2024-2025 | 452 | 99.7 | 32.1% | 49.2 | 3.3% | 16.7% | 5.8 |
 
-The COVID window is the sharper illustration of the lag. Equity volatility ran
-at 57% annualised and realised profit and loss had a standard deviation of
-75.0, while VaR averaged 61.5, barely above its calm-period level of 58.8,
-because the shock was six weeks old and the window was two years long. One day
-in eight was an exception.
+The COVID window illustrates the lag. Equity volatility ran at 57% annualised
+and realised profit and loss had a standard deviation of 67.9, while VaR
+averaged 56.8, barely above its calm-period level of 54.8, because the shock
+was six weeks old and the window held five years of mostly quiet data. One day
+in nine was an exception.
 
-The last row is the mirror image. Mean VaR is at its sample peak of 119.6 with
-volatility back to ordinary levels, and the exception rate collapses to 1.6%
-against a nominal 5%.
+The rate shock of 2022 is worse, and it is the clearest cost of the disclosed
+window run without the disclosed weighting. Nearly a third of days breached.
+Five years of scenarios in early 2022 reach back to 2017, a period containing
+almost no rate volatility, so the engine entered the fastest tightening cycle
+in four decades carrying a scenario set that had never seen one.
+
+The last row is the mirror image, and it is where the downward drift in the
+diversification ratio shows up. Mean VaR sits at its sample peak of 99.7 with
+volatility back to ordinary levels, the exception rate collapses to 3.3%
+against a nominal 5%, and the measured diversification has fallen to 32.1%
+from 44.8% in the calm years — not because the book changed, but because the
+window now holds 2022 and will not let go of it.
 
 ### Backtesting
 
@@ -337,52 +388,58 @@ respect to sizing from 2020 onward.
 
 | Model | Confidence | Period | Days | Exceptions | Rate | Kupiec p | Independence p | Joint p | Worst Basel zone |
 |---|---|---|---|---|---|---|---|---|---|
-| Historical simulation | 95% | 2016-2025 | 2293 | 128 | 5.58% | 0.209 | <0.0001 | <0.0001 | red |
-| Historical simulation | 95% | 2020-2025 | 1373 | 88 | 6.41% | 0.021 | <0.0001 | <0.0001 | red |
-| Volatility weighted | 95% | 2016-2025 | 2293 | 117 | 5.10% | 0.822 | 0.008 | 0.028 | yellow |
-| Volatility weighted | 95% | 2020-2025 | 1373 | 71 | 5.17% | 0.772 | 0.012 | 0.040 | yellow |
-| Historical simulation | 99% | 2016-2025 | 2293 | 37 | 1.61% | 0.007 | <0.0001 | <0.0001 | red |
-| Historical simulation | 99% | 2020-2025 | 1373 | 30 | 2.19% | 0.0001 | <0.0001 | <0.0001 | red |
-| Volatility weighted | 99% | 2016-2025 | 2293 | 22 | 0.96% | 0.844 | 0.514 | 0.793 | yellow |
-| Volatility weighted | 99% | 2020-2025 | 1373 | 16 | 1.17% | 0.549 | 0.539 | 0.692 | yellow |
+| Historical simulation | 95% | 2016-2025 | 2293 | 160 | 6.98% | <0.0001 | <0.0001 | <0.0001 | red |
+| Historical simulation | 95% | 2020-2025 | 1373 | 127 | 9.25% | <0.0001 | <0.0001 | <0.0001 | red |
+| Volatility weighted | 95% | 2016-2025 | 2293 | 117 | 5.10% | 0.822 | 0.110 | 0.272 | yellow |
+| Volatility weighted | 95% | 2020-2025 | 1373 | 70 | 5.10% | 0.868 | 0.213 | 0.454 | yellow |
+| Historical simulation | 99% | 2016-2025 | 2293 | 45 | 1.96% | <0.0001 | <0.0001 | <0.0001 | red |
+| Historical simulation | 99% | 2020-2025 | 1373 | 44 | 3.20% | <0.0001 | <0.0001 | <0.0001 | red |
+| Volatility weighted | 99% | 2016-2025 | 2293 | 19 | 0.83% | 0.395 | 0.573 | 0.594 | green |
+| Volatility weighted | 99% | 2020-2025 | 1373 | 13 | 0.95% | 0.842 | 0.618 | 0.866 | green |
 
-H3 fails for plain historical simulation, and it fails on the right test. Over
-the full sample the exception *count* is almost exactly where it should be and
-Kupiec cannot reject it. Their *arrangement* is indefensible. The model spends
-13.7% of days in the Basel red zone at 95% and 18.6% at 99%, peaking at 19
-exceptions in a 250-day window against a red threshold of 10.
+H3 fails for plain historical simulation, and at the disclosed window it fails
+on every test rather than only on clustering. The exception rate is 6.98% over
+the full sample against a nominal 5%, which Kupiec rejects outright, and 9.25%
+from 2020. The model spends 18.2% of days in the Basel red zone at 95% and the
+same at 99%, peaking at 73 exceptions in a 250-day window against a red
+threshold of 27.
 
-Year by year the reason is plain:
+This is worse than the two-year window produced, and the reason is the point of
+the exercise. A five-year equally weighted window is slow. Year by year:
 
 | Year | Mean VaR | Realised P&L std dev | VaR ÷ 1.645 σ | Exceptions | Days |
 |---|---|---|---|---|---|
-| 2019 | 54.9 | 33.4 | 1.00 | 11 | 225 |
-| 2020 | 60.7 | 51.0 | 0.72 | 13 | 227 |
-| 2021 | 59.7 | 34.4 | 1.05 | 11 | 231 |
-| 2022 | 96.4 | 98.3 | 0.60 | 46 | 230 |
-| 2023 | 132.1 | 85.1 | 0.94 | 11 | 233 |
-| 2024 | 134.6 | 60.1 | 1.36 | 3 | 228 |
-| 2025 | 104.3 | 46.2 | 1.37 | 4 | 224 |
+| 2019 | 52.7 | 30.0 | 1.07 | 8 | 225 |
+| 2020 | 56.3 | 46.1 | 0.74 | 12 | 227 |
+| 2021 | 52.9 | 31.0 | 1.04 | 11 | 231 |
+| 2022 | 63.1 | 90.8 | 0.42 | 70 | 230 |
+| 2023 | 89.1 | 78.8 | 0.69 | 19 | 233 |
+| 2024 | 97.0 | 55.1 | 1.07 | 11 | 228 |
+| 2025 | 102.4 | 42.4 | 1.47 | 4 | 224 |
 
-In 2022 the model carried a VaR of 96.4 against profit and loss with a standard
-deviation of 98.3. It was 40% short of what contemporaneous volatility called
-for, because the 502-day window was still full of 2020 and 2021. Then it
-overshot for two years, running at 1.36 and 1.37 times the normal benchmark as
-the 2022 observations stayed in the window and the market calmed. Historical
-simulation is late in both directions, and the second error is a ghost: VaR
-stays high because of days that are still in the sample, not because of anything
-happening in the market.
+In 2022 the model carried a VaR of 63.1 against profit and loss with a standard
+deviation of 90.8, which is 58% short of what contemporaneous volatility called
+for, and 70 of 230 days breached. Then it overshoots: by 2025 it runs at 1.47
+times the normal benchmark with four exceptions all year, because the 2022
+observations are still in the window and will stay there until 2027. Historical
+simulation is late in both directions and the long window makes it later. The
+second error is a ghost — VaR stays high because of days that remain in the
+sample, not because of anything happening in the market.
+
+Goldman's disclosure anticipates exactly this. It weights its scenarios toward
+recent observations, and section 6 shows that doing the same rescues the
+coverage this table fails.
 
 The five worst days all correspond to real events, which is a check that the
 engine is marking the book sensibly rather than a finding:
 
 | Date of loss | Loss | VaR the day before | Multiple |
 |---|---|---|---|
-| 2022-06-13 | −385.3 | 95.1 | 4.05 |
-| 2020-03-18 | −344.2 | 62.0 | 5.55 |
-| 2022-09-26 | −333.2 | 117.3 | 2.84 |
-| 2020-03-12 | −270.0 | 59.3 | 4.56 |
-| 2023-03-14 | −240.8 | 128.9 | 1.87 |
+| 2022-06-13 | −355.0 | 58.7 | 6.05 |
+| 2020-03-18 | −311.4 | 55.6 | 5.60 |
+| 2022-09-26 | −302.3 | 69.3 | 4.36 |
+| 2020-03-12 | −242.6 | 54.8 | 4.43 |
+| 2023-03-14 | −226.0 | 86.0 | 2.63 |
 
 The June 2022 CPI print and the Federal Reserve's 75 basis point response, the
 COVID crash, the gilt crisis, and the week Silicon Valley Bank failed.
@@ -396,11 +453,20 @@ is taken. Volatility is estimated by exponentially weighted variance with the
 RiskMetrics decay of 0.94, which is causal by construction: the estimate stamped
 with date t uses only moves up to t.
 
-At 99% the corrected model is not rejected by any of the three tests, and it
-never enters the Basel red zone, peaking at 5 exceptions in a 250-day window. At
-95% it passes on count comfortably (p = 0.82) and still fails independence
-(p = 0.008), though the statistic falls from 32.6 to 7.1. Rescaling fixes most
-of the clustering and not all of it.
+The correction does most of the work that the long window leaves undone. At 99%
+the rescaled model is not rejected by any of the three tests and stays green
+throughout, peaking at 4 exceptions in a 250-day window against a yellow
+threshold of 5. At 95% it is not rejected either: the exception rate falls from
+6.98% to 5.10%, Kupiec gives p = 0.82, and independence now passes at p = 0.11
+with the statistic down from 37.7 to 2.6. It reaches the yellow zone but never
+red.
+
+The reading is that the engine's coverage failures are a volatility-timing
+problem rather than a specification problem. Restating the scenario set in
+today's volatility units fixes them. What it does not fix is the diversification
+ratio, which is a correlation question rather than a scale question: rescaling
+every factor by its own volatility leaves the correlation structure of the
+window untouched.
 
 ### What full revaluation is worth
 
@@ -409,11 +475,11 @@ cashflows again at the shocked yield, once by multiplying by modified duration.
 
 | Year | Full revaluation vs duration | Largest single day |
 |---|---|---|
-| 2019 | −0.19% | 0.33% |
-| 2022 | −0.35% | 0.63% |
-| 2024 | −0.36% | 0.65% |
+| 2019 | −0.31% | 0.65% |
+| 2022 | −0.29% | 0.67% |
+| 2024 | −0.29% | 0.56% |
 
-The gap never reaches four tenths of a percent on an annual average, and 0.67%
+The gap never reaches six tenths of a percent on an annual average, and 1.55%
 on the worst single day of the sample. The sign is right (convexity means a long
 bond loses less than duration predicts, so the left tail is less bad and VaR is
 lower) but the magnitude is small, and it should be said plainly rather than
@@ -421,17 +487,17 @@ dressed up. Over a one-day horizon with a daily yield move of about five basis
 points, convexity is a second-order term. Full revaluation earns its cost on
 instruments whose value is a sharply non-linear function of the factor, which
 means options, and on longer horizons and larger shocks. On vanilla bonds at one
-day it buys a third of a percent.
+day it buys three tenths of a percent.
 
 ### Comparison against Goldman's own exception counts
 
 | Year | Model exceptions (95%) | Model days | Model rate | Goldman |
 |---|---|---|---|---|
-| 2016 | 11 | 233 | 4.7% | 0 |
-| 2018 | 14 | 230 | 6.1% | 2 |
-| 2020 | 13 | 227 | 5.7% | 2 |
-| 2022 | 46 | 230 | 20.0% | 2 |
-| 2024 | 3 | 228 | 1.3% | 2 |
+| 2016 | 9 | 233 | 3.9% | 0 |
+| 2018 | 11 | 230 | 4.8% | 2 |
+| 2020 | 12 | 227 | 5.3% | 2 |
+| 2022 | 70 | 230 | 30.4% | 2 |
+| 2024 | 11 | 228 | 4.8% | 2 |
 
 Goldman recorded 10 exceptions at 95% across 2016-2025, roughly 0.4% of days
 against a nominal 5%. A literal Kupiec test on that count rejects calibration at
@@ -488,16 +554,65 @@ reported configurations the count is zero.
 
 ## 6. Robustness
 
-**Lookback window.** At 252, 502 and 756 days the mean diversification ratio is
-38.2%, 39.0% and 39.7%, and exceptions are 128, 128 and 134. Independence is
-rejected at every window. None of the conclusions depends on the choice.
+**Lookback window.** The disclosed five years is the baseline; one, two and
+three years are run beside it to measure what the length is worth.
+
+| Window | Mean ratio | Year-to-year std dev | Exception rate | Kupiec p |
+|---|---|---|---|---|
+| 252 days | 38.2% | 10.23 | 5.58% | 0.209 |
+| 502 days | 39.0% | 8.87 | 5.58% | 0.209 |
+| 756 days | 39.6% | 8.36 | 5.89% | 0.058 |
+| **1,260 days (disclosed)** | **41.6%** | **6.33** | **6.98%** | **<0.0001** |
+| *Goldman* | *42.0%* | *2.08* | *0.40%* | |
+
+Lengthening the window moves the result in the right direction on both counts:
+the level climbs toward the disclosure and the year-to-year variation falls
+from 10.23 to 6.33. It does not arrive. At the disclosed length the ratio still
+moves three times as much as Goldman's, and the coverage gets worse, because a
+five-year equally weighted scenario set is slow to notice a new regime.
+
+**Scenario age weighting.** This is the sweep that matters. Goldman states that
+the importance of its historical data reduces over time, which is the one
+methodological detail in the filings that bears directly on how steady a
+measured diversification ratio will be. Implementing it, at the disclosed
+window, gives:
+
+| Age decay | Half-life | Mean ratio | Year-to-year std dev | Exception rate | Kupiec p |
+|---|---|---|---|---|---|
+| 1.00 (equal) | — | 41.6% | 6.33 | 6.98% | <0.0001 |
+| 0.99 | 69 days | 39.9% | 10.04 | 5.45% | 0.328 |
+| 0.97 | 23 days | 42.0% | 9.46 | 5.63% | 0.177 |
+| *Goldman* | | *42.0%* | *2.08* | *0.40%* | |
+
+Two things happen at once, and they point in opposite directions.
+
+The weighting fixes the model. Coverage goes from decisively rejected to not
+rejected: the exception rate drops from 6.98% to 5.45% and Kupiec's p-value
+rises from below 0.0001 to 0.328. At a 23-day half-life the independence test
+passes as well (p = 0.305). Weighting toward recent data is the correct
+specification for a historical simulation engine, and the filings say so in
+plain terms.
+
+And it makes the diversification ratio *less* steady, not more: the year-to-year
+standard deviation rises from 6.33 to between 9.46 and 10.04, four to five times
+Goldman's 2.08. Faster decay means the effective scenario set turns over faster,
+so the correlation structure the engine measures swings more.
+
+That result is the strongest form of the central finding. The gap between the
+disclosed steadiness and the reproduced steadiness is not an artifact of this
+replication using a cruder method than the bank. Hand the engine the bank's own
+disclosed window and the bank's own disclosed weighting, and the gap widens
+while the engine becomes a better risk model by every coverage test applied to
+it. Whatever holds Goldman's diversification ratio at 42% through this decade
+is not in the methodology it discloses.
 
 **Percentile convention.** Linear interpolation and the discrete order statistic
-differ by 0.02% of the VaR level and produce identical exception counts.
+differ by 0.30% of the VaR level, 160 exceptions against 157, and 41.60% against
+41.54% on the mean ratio.
 
-**Sleeve signs.** Reported in section 4. This is the only specification choice
-that moves the headline result, which is why all sixteen were run rather than
-sampled.
+**Sleeve signs.** Reported in section 4. Along with the age weighting, this is
+the specification choice that moves the headline result, which is why all
+sixteen were run rather than sampled.
 
 ## 7. Limitations
 
@@ -526,33 +641,53 @@ it, but the instrument sets are not identical.
 
 At near-zero policy rates, Treasury's one basis point quotation granularity
 means the two-year yield shows no change on 19.4% of days in the sample. Real,
-and it understates true rate variability slightly in the 2015-2021 window.
+and it understates true rate variability slightly in the 2010-2021 window.
 
 The recalibrated book uses figures published after the year it sizes. That is
 appropriate for a structural comparison and would be indefensible for a
 forecast, which is why the backtest uses the fixed book only.
 
+The age-decay rate is not disclosed. Two values are run, bracketing a range
+that spans half-lives of three weeks to three months, and the direction of the
+effect on the diversification ratio is the same at both. The disclosed scheme
+is therefore tested in kind but not at Goldman's own rate, which is unknowable
+from the filings.
+
 ## 8. What the exercise shows
 
-Goldman's methodology description is specific enough to be reimplemented, and
-reimplementing it on seventeen public factors lands the average diversification
-benefit within one point of theirs. That much transfers.
+Goldman's methodology description is specific enough to be reimplemented — down
+to the five-year window and the decay on older observations — and reimplementing
+it on seventeen public factors lands the average diversification benefit within
+half a point of theirs. That much transfers.
 
-The steadiness does not. Their disclosed ratio moved by 2.1 points a year
-through a pandemic and a rate shock; a static book with fixed sleeve signs
-cannot do better than a trade-off between matching that level and matching that
-steadiness, and the gap is wide enough that no configuration out of sixteen
-comes close to both. Whatever holds Goldman's ratio still is not present in a
-four-sleeve proxy, and the most likely candidates are a much larger independent
-factor set and exposures that are actively managed rather than held.
+The steadiness does not, and it does not transfer under the bank's own settings.
+Their disclosed ratio moved by 2.08 points a year through a pandemic and a rate
+shock. At the disclosed five-year window a static book moves by 6.33, and adding
+the disclosed age weighting raises that to between 9.46 and 10.04 — while the
+same weighting takes the engine from decisively failing its coverage tests to
+passing them. The replication is not losing to Goldman because it uses a blunter
+method. It uses Goldman's method, and the steadiness still is not there.
 
-On the engine itself, the backtest says something a count alone would miss. A
-model can sit at 5.58% against a nominal 5% and still be unusable, because its
-failures arrive in heaps rather than at random. Rescaling the scenario set to
-current volatility turns a model that spends a fifth of its days in the Basel
-red zone into one that is not rejected on any of the three tests at 99%. That is
-the largest improvement available anywhere in this project, and it costs one
-volatility estimate per factor.
+Nor can sleeve direction recover it. Across all sixteen sign configurations the
+level and the steadiness trade off against each other: five books are at least
+as steady as the disclosure and none of those averages above 35.6%, while eight
+average 40% or more and the steadiest of those moves by 3.68 points a year.
+Nothing does both.
+
+What is left is what the proxy structurally lacks: a far larger set of
+independent risk sources, and exposures that are repositioned daily rather than
+held fixed. The filings support the second directly, since Goldman explains its
+own year-over-year VaR changes in terms of exposure moves as well as volatility
+in four consecutive years.
+
+On the engine itself, the backtest says something a count alone would miss. The
+disclosed window run with equal weights fails on count and on arrangement, with
+70 breaches in 230 days during 2022 and a fifth of all days in the Basel red
+zone. Two different corrections repair it — Goldman's own age weighting, and
+Hull-White volatility rescaling, which reaches green at 99% and is rejected by
+none of the three tests. Both are cheap. Neither touches the diversification
+result, because both change the scale of the scenario set and neither changes
+its correlation structure.
 
 ## References
 

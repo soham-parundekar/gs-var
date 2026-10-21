@@ -71,12 +71,20 @@ class Config:
     def base_year(self) -> int:
         return int(self._raw["calibration"]["base_year"])
 
-    def settings(self, quantile: float | None = None, window: int | None = None) -> Settings:
+    def settings(
+        self,
+        quantile: float | None = None,
+        window: int | None = None,
+        age_decay: float | None = None,
+    ) -> Settings:
         engine = self._raw["engine"]
         return Settings(
             window=window if window is not None else int(engine["window"]),
             quantile=quantile if quantile is not None else float(engine["quantile"]),
             interpolate=bool(engine["interpolate"]),
+            age_decay=(
+                age_decay if age_decay is not None else float(engine["age_decay"])
+            ),
         )
 
 
