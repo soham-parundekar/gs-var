@@ -92,6 +92,20 @@ Risk*, Vol. 1, No. 1, pp. 5-19. DOI
 volatility-weighted variant implemented in `volatility.py`. Copyrighted;
 available from the publisher at the DOI.
 
+**REF-021. U.S. Commodity Futures Trading Commission (2020).** *Interim Staff
+Report: Trading in NYMEX WTI Crude Oil Futures Contract Leading up to, on, and
+around April 20, 2020*, published 23 November 2020. The source for the two
+prices behind the decision to run commodity exposure through exchange-traded
+funds rather than front-month futures: the May 2020 contract settled at
+-$37.63 per barrel on 20 April 2020, against a close of $18.27 on 17 April. A
+percentage return is not defined across that sign change, and the implied
+single-day move of -306% is arithmetic rather than a market move a risk model
+should be asked to price.
+<https://www.cftc.gov/media/5296/InterimStaffReportNYMEX_WTICrudeOil/download>
+
+Work of the US government, public domain, and preserved in full at
+`official_reports/2020_CFTC_InterimStaffReport_NYMEX_WTI_April2020.pdf`.
+
 **REF-020. Boudoukh, Jacob, Richardson, Matthew and Whitelaw, Robert (1998).**
 "The Best of Both Worlds: A Hybrid Approach to Calculating Value at Risk."
 DOI [10.2139/ssrn.51420](https://doi.org/10.2139/ssrn.51420). The age-weighted
@@ -149,3 +163,4 @@ statistic in this project: 1,043 observations with 57 failures at 95% gives
 | REF-018 | `volatility.ewma_forecast` |
 | REF-019 | `tests/test_backtest.py` |
 | REF-020 | `historical_sim.age_weights`, the age-weighted engine runs |
+| REF-021 | `factors.COMMODITY_FUNDS`, the choice of funds over futures |

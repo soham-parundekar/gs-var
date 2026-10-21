@@ -56,9 +56,13 @@ which is arithmetic rather than a market move. Funds cannot price below zero.
 The cost is roll yield, which drags a fund away from spot over long horizons;
 over one day it is second order, but it is a real difference from a spot book.
 
-**Prices are adjusted for splits.** USO ran a one-for-eight reverse split in
-April 2020. On unadjusted closes that is a 700% overnight gain sitting in the
-middle of the most important stress window in the sample.
+**Prices are adjusted for splits.** USO carried out a reverse split in 2020, in
+the same months as the negative-settlement episode. On unadjusted closes a
+reverse split shows up as a large overnight gain, which would sit in the middle
+of the most important stress window in the sample and enter the scenario set as
+a tail event. The split ratio and effective date are not recorded here because
+they were not verified against the fund's own filing; the point does not depend
+on them, and adjusted closes are used for every traded instrument regardless.
 
 **The calendar is the intersection, not the union.** Tokyo, London, New York and
 the ECB keep different holidays. Taking only days when all of them traded costs
