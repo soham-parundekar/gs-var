@@ -191,7 +191,7 @@ and it biases the diversification effect downward relative to a book with more
 independent sources of risk.
 
 Restricting the panel to days on which Tokyo, London, New York and the ECB were
-all open costs about 9% of trading days, leaving 224 to 233 days a year
+all open costs about 9% of trading days, leaving 225 to 233 days a year
 against Goldman's 250 to 253. Index closes in different time zones are not
 simultaneous, which depresses measured cross-market correlation and so overstates
 diversification.

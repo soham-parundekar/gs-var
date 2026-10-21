@@ -131,17 +131,18 @@ minus 306%, which is arithmetic rather than economics. Funds cannot price below
 zero. The cost is roll yield, noted in the limitations.
 
 The panel is restricted to days on which every market was open, which costs
-about 9% of trading days and leaves 224 to 233 days a year against
+about 9% of trading days and leaves 225 to 233 days a year against
 Goldman's 250 to 253. Forward-filling a closed market would plant runs of zero
 returns in the scenario set and understate that factor's risk.
 
 Two data checks are worth naming because both fired during development. A
 non-positive price anywhere breaks a return calculation, and a long run of
 identical values means a stale feed. The second check needs different tolerances
-for the two kinds of factor: the two-year Treasury yield sat at 0.13% through the
-second half of 2020 and, quoted to the basis point, genuinely did not move on
-19.4% of days. Flagging that would be flagging the monetary policy of 2020. A
-traded price repeating for five days running is still an error.
+for the two kinds of factor: the two-year Treasury yield sat near 0.13% through
+the second half of 2020 and, quoted to the basis point, genuinely did not move
+on 43.1% of days in that half-year, or 21.1% of the full panel. Flagging that
+would be flagging the monetary policy of 2020. A traded price repeating for five
+days running is still an error.
 
 ## 3. Method
 
@@ -625,7 +626,7 @@ pricing depresses measured cross-market correlation and so overstates
 diversification, in the opposite direction to the factor-count bias. Neither
 has been quantified here.
 
-Restricting to days when all markets were open leaves 224 to 233 observations a
+Restricting to days when all markets were open leaves 225 to 233 observations a
 year against Goldman's 250 to 253, which reduces the power of every test
 reported.
 
@@ -640,8 +641,9 @@ per unit of notional. Sizing targets risk rather than notional, which absorbs
 it, but the instrument sets are not identical.
 
 At near-zero policy rates, Treasury's one basis point quotation granularity
-means the two-year yield shows no change on 19.4% of days in the sample. Real,
-and it understates true rate variability slightly in the 2010-2021 window.
+means the two-year yield shows no change on 21.1% of days in the sample, rising
+to 43.1% in the second half of 2020. Real, and it understates true rate
+variability slightly through the near-zero years.
 
 The recalibrated book uses figures published after the year it sizes. That is
 appropriate for a structural comparison and would be indefensible for a

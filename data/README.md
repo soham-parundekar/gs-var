@@ -62,7 +62,7 @@ middle of the most important stress window in the sample.
 
 **The calendar is the intersection, not the union.** Tokyo, London, New York and
 the ECB keep different holidays. Taking only days when all of them traded costs
-about 9% of trading days and leaves 224 to 233 observations a year
+about 9% of trading days and leaves 225 to 233 observations a year
 against Goldman's 250 to 253. Forward-filling a closed market instead would
 plant runs of exact zeros in the scenario set and understate that factor's risk.
 The remaining closes are still not simultaneous across time zones, which
@@ -81,8 +81,11 @@ because each produces a plausible number rather than an error downstream.
 The last check needs different tolerances for the two kinds of factor. A traded
 price repeating to the cent for five days running is an error. A Treasury yield
 repeating is not: the curve is quoted to the basis point, and with the two-year
-note at 0.13% through the second half of 2020 it genuinely did not move on 19.4%
-of days. The limits are five consecutive days for prices and fifteen for yields.
+note near 0.13% through the second half of 2020 it genuinely did not move on
+43.1% of days in that half-year. Across the whole 2010-2025 panel the figure is
+21.1%, and the longest unbroken run is six days. The limits are five
+consecutive days for prices and fifteen for yields, so the real series clears
+the yield limit with margin while a repeating traded price still trips.
 That discretisation slightly understates true rate variability in the near-zero
 period, which is listed in the report's limitations.
 
