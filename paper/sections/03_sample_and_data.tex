@@ -1,0 +1,144 @@
+% Drafted against audit/outline.md §3, with one deviation: the outline listed
+% the 2022 restatement here as well as in §2. It is covered in §2.2 and is
+% cross-referenced rather than repeated. §3.2 instead explains where the
+% sample boundaries come from, which the outline left implicit.
+%
+% Figures from data/processed/gs_filing_manifest.csv, factor_move_summary.csv
+% and factor_moves.csv, hash-recorded in audit/evidence_freeze.csv at commit
+% 716ecf4c.
+
+\section{Sample and data}\label{sec:sample}
+
+\subsection{Why one dealer over ten years}
+
+A cross-section of banks and a single bank over a long period answer different
+questions. A cross-section can establish how disclosure practice varies, which
+is what \citet{perignon2010level} and \citet{campbell2022australia} do. A long
+single-dealer series can ask whether one firm's reported co-movement holds up
+across a change of regime, which needs the regime change inside the sample
+rather than at its edge.
+
+That is the trade this paper makes. One filer, ten consecutive fiscal years,
+and enough of them that the sample contains the March 2020 dislocation, the
+zero-rate period that followed, and the tightening cycle of 2022 and 2023. The
+cost is that nothing here generalises to other banks: Goldman's disclosed
+diversification effect is a fact about Goldman, and the stability this paper
+fails to reproduce may be particular to its book. What is tested is a
+reproduction, not a cross-sectional regularity.
+
+\subsection{The sample, and where its boundaries come from}
+
+The disclosures are the ten Form 10-K filings of The Goldman Sachs Group, Inc.,
+CIK 0000886982, covering fiscal years 2016 through 2025 and filed between
+February 2017 and February 2026. Appendix~\ref{sec:appendix_a} lists the
+accession number, filing date and retrieval URL of each.
+
+Both sample boundaries follow from one rule, stated in
+Section~\ref{sec:disclosed}: every figure is taken from the filing that first
+reported it, rather than from a later filing's restatement of it. Each 10-K
+restates the prior year, so the FY2016 filing does carry 2014 and 2015 figures,
+but only as comparatives. Reaching those years as first reported would
+require the FY2014 and FY2015 filings, which are not in the sample because the
+ten-year window was fixed before the as-first-reported rule made their absence
+binding. Extending the series backwards is therefore a matter of fetching two
+more filings rather than a limitation of method, and it was not done. At the recent end, FY2025 is
+simply the most recent filing available at the retrieval date of 9 October
+2026.
+
+The factor panel's start date is set by the disclosed window rather than
+chosen. A five-year lookback needs five years of scenarios before the first
+valuation date, and the aligned trading calendar described below discards about
+9\% of days, so five years of scenarios needs closer to six calendar years of
+history. The panel begins on 5 January 2010 and runs to 30 December 2025,
+3,670 aligned days, which leaves 1,376 days of history before the first
+valuation date against the 1,260 the window consumes. One restatement in the
+disclosed series is discussed in Section~\ref{sec:disclosed} and is not
+repeated here; the figures used throughout are as first reported.
+
+\subsection{The seventeen factors}
+
+Table~\ref{tab:factors} lists the risk factors and Table~\ref{tab:factorstats}
+summarises their daily moves. All seventeen come from the issuer of the
+instrument, a central bank, or an exchange close: the US Treasury par yield
+curve at two, five, ten and thirty years \citep{treasurycurve}; the European
+Central Bank's euro area AAA central government spot curve at two, five and ten
+years \citep{ecbcurve}; four equity indices; three currency pairs; and three
+commodity funds. They are grouped to match Goldman's four disclosed categories
+so that each sleeve can be sized against the corresponding disclosed share.
+
+\input{tables/table2_factors}
+
+\input{tables/table3_factor_stats}
+
+Seventeen factors against the roughly 70,000 the FY2016 and FY2017 filings
+describe is the single largest difference between this model and Goldman's, and
+the direction of its effect is known: fewer independent sources of risk means
+less diversification available, which biases the measured effect downward
+relative to a book with a richer factor set. It is not quantifiable here, and
+Section~\ref{sec:limitations} says so rather than estimating it.
+
+The two blocks of Table~\ref{tab:factorstats} are in different units and are
+not comparable with each other. That is not a presentational awkwardness but
+the reason the engine sizes sleeves against disclosed risk shares rather than
+against notional: a dollar of two-year Treasury and a dollar of crude oil fund
+carry risks that differ by more than an order of magnitude, so matching
+Goldman's category proportions requires matching risk, not money.
+Section~\ref{sec:method} gives the calibration.
+
+\subsection{Three choices that shaped the panel}
+
+Each of these changes the numbers, so each is stated rather than left in the
+code.
+
+\emph{Equity indices enter in local currency.} A dollar investor holding the
+Nikkei carries yen risk as well as Japanese equity risk. Goldman reports
+currency risk as a category of its own, so converting the indices to dollars
+would push currency risk into the equity sleeve and count it twice, making the
+category attribution --- the thing being matched --- meaningless.
+
+\emph{Commodities enter through exchange-traded funds rather than front-month
+futures.} On 20 April 2020 the NYMEX May 2020 WTI contract settled at
+$-\$37.63$ per barrel, against a close of \$18.27 on 17 April
+\citep{cftc2020wti}. A percentage return is not defined across a sign change,
+and the implied one-day move of $-306\%$ is arithmetic rather than a price
+movement a risk model should be asked to price. Funds cannot settle below zero.
+The cost of the substitution is roll yield, which drags a fund away from spot
+over long horizons; over one day it is second order, but it is a real
+difference from a spot book and it is carried through to
+Section~\ref{sec:limitations}.
+
+\emph{Prices are adjusted for splits.} The crude oil fund used here ran a
+one-for-eight reverse share split, effective after the close on 28 April 2020,
+with post-split shares trading from the following day \citep{uso2020split}. On
+unadjusted closes that is a 700\% overnight gain, and it would enter the
+scenario set as a tail event in the middle of the most consequential stress
+window in the sample, within days of the negative settlement above.
+Split-adjusted closes are used throughout, for every traded instrument rather
+than only this one.
+
+\subsection{The trading calendar}
+
+Tokyo, London, New York and the ECB keep different holidays, and the panel is
+the intersection of their calendars rather than the union. Taking only days on
+which every market traded costs about 9\% of trading days and leaves 225 to 233
+observations a year against the 250 to 253 Goldman reports. The alternative,
+forward-filling a closed market, would plant runs of exact zeros in the
+scenario set and understate that factor's risk, which is a worse error than a
+smaller sample: it would bias the thing being measured rather than merely
+reducing the precision with which it is measured.
+
+The reduced sample does cost power in every test reported in
+Section~\ref{sec:validation}, and that is the price of the choice.
+
+Two further properties of the panel are limitations rather than choices, and
+neither is corrected. The surviving closes are still not simultaneous across
+time zones, which depresses measured cross-market correlation and therefore
+overstates diversification, in the opposite direction to the factor-count
+bias above, which is why neither is used to argue the result one way or the
+other. And the Treasury curve is quoted to the basis point, so at near-zero
+policy rates the two-year yield shows no change at all on 21.1\% of days across
+the panel, rising to 43.1\% of days in the second half of 2020. The build's
+staleness check accommodates this by allowing longer runs of identical values
+in yield factors than in traded prices; the longest unbroken run in the
+two-year series is six days, against a limit of fifteen. The discretisation
+slightly understates true rate variability through the near-zero years.

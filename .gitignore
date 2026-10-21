@@ -12,6 +12,30 @@ data/processed/factor_moves.csv
 # Everything else in data/processed is model output or figures parsed from
 # public SEC filings, and is committed so results can be read without a run.
 
+# LaTeX intermediates. main.pdf is committed, so the manuscript can be read
+# without a local TeX installation, and the Overleaf archive is rebuilt by
+# paper/build/package_overleaf.py rather than stored.
+paper/main.aux
+paper/main.bbl
+paper/main.blg
+paper/main.fdb_latexmk
+paper/main.fls
+paper/main.log
+paper/main.out
+paper/main.toc
+paper/main.synctex.gz
+paper/overleaf-gs-var.zip
+
+# Working notes kept beside the manuscript but deliberately unpublished: the
+# drafting plan, the review record and the audits of the finished draft. These
+# document how the paper was made rather than what it found, and the reasoning
+# for each is in paper/audit/PUBLICATION.md, which does ship.
+paper/audit/outline.md
+paper/audit/peer_review.md
+paper/audit/prehumanization_audit.md
+paper/audit/humanization_pass.md
+paper/audit/open_finding_period_end.md
+
 # Python
 __pycache__/
 *.py[cod]

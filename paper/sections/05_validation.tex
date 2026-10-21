@@ -1,0 +1,188 @@
+% Drafted against audit/outline.md §5. Three figures in that block were stale
+% and are corrected here against the current suite and data: sizing error is
+% 4.26e-14 percent rather than 6.6e-14, the Kupiec empirical size is 4.3% at
+% the seed the test fixes rather than 4.8-5.8%, and the suite is 107 tests
+% rather than 88. The outline records the corrections.
+%
+% Berkowitz and O'Brien (2002) is not cited: paywalled, never read, recorded
+% as such in the source register.
+%
+% Evidence: data/processed/calibration_error_by_year.csv and the test suite,
+% hash-recorded in audit/evidence_freeze.csv at commit 1e6bdd74.
+
+\section{Validation}\label{sec:validation}
+
+A model that runs is not a model that is right. Every check in this section
+compares the engine against something outside it --- a hand calculation, an
+independent implementation, a published boundary, an algebraic identity --- so
+that agreement is evidence rather than self-report. The suite is 107 tests.
+What none of it establishes is the resemblance between the proxy book and
+Goldman's, and the last subsection says so plainly.
+
+\subsection{The pricer against hand calculation}
+
+The bond pricer is the one component where an error would be silent: a
+mispriced bond produces a plausible VaR rather than an exception. A ten-year
+bond with a 5\% semiannual coupon valued at a 6\% yield prices at
+92.5612626, which the implementation reproduces to seven decimals, and it
+trades below par because its coupon is a point under its yield. A zero-coupon
+bond reproduces $100/1.03^{10}$ to twelve decimals at a 3\% rate. A par bond
+prices at exactly 100 at its own yield, which is the identity that catches a
+coupon-frequency error.
+
+Two further properties are checked because
+Equation~\eqref{eq:revaluation} depends on them. The analytic modified duration
+agrees with a numerical derivative of the price function, and convexity has the
+correct sign in both directions: a yield fall gains more than duration predicts
+and a yield rise loses less. That second property is what
+Section~\ref{sec:assumptions} quantifies when it prices the rate sleeve both
+ways.
+
+\subsection{The sizing identity}
+
+Section~\ref{sec:method} claims the sleeve calibration is exact rather than
+approximate, on the grounds that VaR is positively homogeneous in notional.
+Table~\ref{tab:sizing} checks the claim instead of assuming it. Across all 40
+sleeve-years the largest absolute sizing error is
+$4.26 \times 10^{-14}$ percent of target, which is floating-point noise.
+
+\input{tables/table5_sizing}
+
+Two things make this worth a table rather than a footnote. The first is that an
+inexact calibration would quietly contaminate the comparison: if summed
+category VaR only approximately matched the disclosures, part of any gap in the
+diversification effect would be a sizing artefact rather than a correlation
+result. The second is that the check is independent of the mechanism. The
+engine is not told that scaling is linear; it is run, and the achieved sleeve
+VaR is measured and compared against target. Agreement to fourteen decimal
+places is then evidence for the homogeneity property, not a restatement of it.
+
+A test in the suite makes the same point directly, by running the whole engine
+on a book and on the same book scaled by an arbitrary factor and confirming
+that every VaR scales by exactly that factor.
+
+\subsection{The backtest statistics against published values}
+
+The coverage tests are standard and their implementations are checked against
+external values rather than against each other.
+
+The \citet{kupiec1995} proportion-of-failures statistic reproduces an
+independent implementation on two published cases. With 1{,}043 observations and
+57 failures at 95\%, the published statistic is 0.46147 with a $p$-value of
+0.49694, and this implementation returns 0.4614664, agreeing to the five decimal
+places the published figure carries. With 17 failures at 99\% the published
+statistic is 3.51180 and this implementation returns 3.5118129, a difference of
+$1.3 \times 10^{-5}$; the published figure is not the correctly rounded
+five-decimal value, which is 3.51181, so the agreement is to within that
+tolerance rather than digit for digit. The $p$-value, 0.060933, matches
+exactly. Its analytic limits hold as well. Zero exceptions give
+$-2T\ln(1-p)$, and a failure rate exactly equal to coverage gives zero. A
+Monte Carlo experiment under the null puts the empirical size at 4.3\% against
+a nominal 5\% at the seed the test fixes, and between 4.4\% and 5.7\% across
+three further seeds. The statistic is discrete, so its distribution cannot
+match a continuous chi-square exactly; size at the nominal level is the
+property that matters and the one that is tested.
+
+The \citet{christoffersen1998} independence and conditional coverage statistics
+are checked against their own analytic cases, including the degenerate samples
+where a transition count is zero.
+
+The Basel traffic-light boundaries deserve a note because they are easy to get
+wrong by borrowing them. They are rederived here from the binomial
+distribution, not hard-coded, and the derivation reproduces the published
+boundaries of five and ten for a 99\% model over 250 trading days
+\citep{bcbs1996backtesting}. The reason the derivation matters is that those
+numbers are specific to 99\%. A correctly calibrated 95\% model is expected to
+break about twelve times in 250 days, and the rederivation puts its yellow and
+red thresholds at 18 and 27; carrying the published 99\% boundaries across
+unchanged would place a well-specified 95\% model permanently in the red zone.
+Every zone reported in this paper is computed at the confidence level it
+belongs to.
+
+\subsection{The look-ahead probe}
+
+Look-ahead is the failure mode that announces itself as success. Every other
+error in a VaR engine produces an implausible number; using tomorrow's data
+produces an unusually good backtest, which is easy to mistake for a working
+model.
+
+The probe is therefore adversarial. Every factor move after a cut-off date is
+multiplied by 25, and the engine is re-run on the tampered panel. VaR stamped
+on or before the cut-off must be identical to what it was, because it is only
+permitted to see scenarios up to its own date. The realised profit-and-loss
+column is excluded from the comparison, since that column is supposed to
+change: it carries the next day's outcome, which is exactly the quantity the
+tampering alters.
+
+A companion test pins the off-by-one that would make the backtest meaningless,
+confirming that the realised result recorded against date $t$ is the book
+repriced on the move of $t+1$ and not of $t$.
+
+\subsection{The subadditivity guard}
+
+One check needs explaining rather than asserting, because its natural form
+would be wrong.
+
+The diversification effect in Equation~\eqref{eq:diversification} is almost
+always negative, and an engine that produced a positive one would normally be
+signalling a sign error. But VaR is not a subadditive risk measure.
+\citet{artzner1999coherent} define a coherent measure by four axioms:
+translation invariance, subadditivity, positive homogeneity and monotonicity.
+They show that VaR satisfies the first, third and fourth while failing the
+second. In their words, the use of VaR ``does not encourage and, indeed,
+sometimes prohibits diversification.'' On a sufficiently awkward joint tail, a
+whole book really can show a larger loss quantile than the sum of its parts.
+That is a property of the measure rather than a defect in the code, and it is
+the reason expected shortfall exists.
+
+So the guard is a tolerance, not an assertion. The engine records days on which
+the effect is positive and refuses the run only when they exceed one day in a
+hundred, which is the threshold separating the genuine phenomenon from a sign
+error. A test confirms the guard behaves that way in both directions: it
+tolerates a few such days and rejects many.
+
+On every configuration reported in this paper the count is zero, 0 of 2{,}293
+days on both the fixed and the recalibrated book. That is not an accident of
+this data. \citet{artzner1999coherent} note in a remark that under joint
+normality the quantiles do satisfy subadditivity as long as exceedance
+probabilities stay below one half, and a four-sleeve book of broad market
+factors at a 5\% tail is close enough to that case for the failure not to bite.
+The guard exists for the configurations where it might, not because it ever
+fired.
+
+\subsection{The equal-weight collapse}
+
+One check exists specifically to make Section~\ref{sec:assumptions}
+interpretable. The age-weighted estimator of
+Equation~\eqref{eq:ageweights} and the ordinary percentile are different pieces
+of code, and if they disagreed at $\lambda = 1$ then any difference between a
+weighted and an unweighted run would mix the weighting with a change of
+estimator.
+
+They do not disagree. The plotting position in the weighted reading is chosen so
+that equal weights reduce exactly to the position the unweighted percentile
+interpolates against, and the discrete readings coincide likewise. The suite
+pins the identity to machine precision across four sample sizes and four
+quantiles, in both conventions. Whatever Section~\ref{sec:assumptions} reports
+about age weighting is therefore the weighting.
+
+\subsection{What the engine does not validate}
+
+Everything above establishes internal correctness: the engine computes what
+Section~\ref{sec:method} says it computes, on the data
+Section~\ref{sec:sample} describes. Within that, two things are checked by the
+build rather than by the suite and should be named: the alignment of the factor
+panel to a common trading calendar, and the staleness and sign checks on the
+raw series. Those run on every rebuild and halt it on failure, but they are not
+unit tests and no test asserts that the calendar intersection is correct beyond
+what those checks cover. None of it establishes that the proxy book
+resembles Goldman's trading book, and no test could, because the positions are
+not disclosed and never will be.
+
+This matters for how the results should be read. A validated engine on a proxy
+book can show that a particular structure of market risk, exposed to public
+factor data, does or does not generate a particular diversification effect.
+It cannot show that Goldman's book has that structure. The level agreement in
+Section~\ref{sec:results} is therefore evidence about the proxy, and the
+steadiness gap is evidence about what a static proxy cannot do, not a
+measurement of anything inside the firm.

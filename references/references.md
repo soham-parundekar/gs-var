@@ -7,6 +7,13 @@ here that the project does not actually use.
 
 All sources were accessed on 9 October 2026.
 
+The manuscript under `paper/` draws on a wider literature than the code does,
+and registers it separately in `paper/references/source_register.csv`, which
+records for each work whether it was read in full or verified by metadata
+alone. Preserved documents from either register are stored once, here, so
+`papers/` and `official_reports/` may hold a file that only the manuscript's
+register lists.
+
 ## Primary disclosures
 
 The ten annual reports are the subject of the project rather than a background

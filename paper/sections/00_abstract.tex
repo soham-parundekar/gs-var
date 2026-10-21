@@ -1,0 +1,33 @@
+% Written last and revised after peer review. The earlier version quoted a
+% regression trend whose p-value assumed an independence that overlapping
+% five-year windows rule out, and described the amplitude comparison as an
+% exact reproduction when ten observations cannot establish that. Both are
+% restated here.
+\noindent
+Every large dealer reporting market risk under Item 7A publishes Value-at-Risk
+by risk category and a single reconciling line between those categories and the
+firmwide total. The category figures are levels. The reconciling line, the diversification
+effect, is a relationship, and the relationship it reports is the one thing
+the filing withholds. That asymmetry makes it the single disclosed quantity an
+outside party can check. This paper tests it on ten consecutive Goldman Sachs filings,
+fiscal years 2016 through 2025, with a historical-simulation engine run at the
+bank's own disclosed settings --- full revaluation, a five-year scenario window
+and age-weighted scenarios --- over a proxy book of seventeen public risk
+factors sized to the disclosed split of risk across categories.
+
+The level reproduces and the steadiness does not. Goldman's effect has averaged
+42.0\% of summed category VaR with a year-to-year standard deviation of 2.08
+percentage points; a book sized once and then left alone averages 41.6\%, which
+no test on ten annual observations separates from the disclosure, with a
+standard deviation of 6.33 ($F = 9.26$, $p = 0.003$). The firm's second
+disclosed measure locates the failure. Period-end against period-end the two
+amplitudes cannot be told apart; year on year the disclosed series carries
+nothing forward (lag-1 autocorrelation $-0.47$) while the proxy carries almost
+everything ($+0.9$). What fails to reproduce is not how far the ratio moves but
+whether it comes back. Sweeping the undisclosed decay rate across
+sixteen values, from equal weighting to a 6.6-day half-life, never brings the
+proxy nearer than three times the disclosed steadiness, and the rates that best
+repair the engine's coverage are among the worst on steadiness. Across all
+sixteen sleeve-sign configurations, five match the disclosed steadiness and none
+of those averages above 35.6\%, eight reach 40\% and the steadiest of those
+varies by 3.68 points; none does both.

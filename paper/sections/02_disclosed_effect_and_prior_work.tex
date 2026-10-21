@@ -1,0 +1,152 @@
+% Drafted against audit/outline.md §2. Disclosure figures and the identity
+% check come from data/processed/gs_var_average_daily.csv; Goldman's own
+% wording is quoted from references/sec_filings/, both hash-recorded in
+% audit/evidence_freeze.csv at commit 1e6bdd74.
+%
+% Two corrections to the outline's prior-work summary, made at drafting time
+% against the source register: Pérignon, Deng and Wang (2008) study six
+% Canadian banks, not US ones, and their abstract attributes the overstatement
+% they find partly to underestimated diversification, which makes them closer
+% to this paper's subject than the outline implied.
+
+\section{The disclosed diversification effect, and prior work}\label{sec:disclosed}
+
+\subsection{What Goldman discloses, and how the effect is defined}
+
+The definition is Goldman's own, and it is worth quoting because the whole
+exercise depends on it. In the words of the FY2025 filing, the "[d]iversification
+effect in the tables below represents the difference between total VaR and the
+sum of the VaR for the four risk categories," and "[t]his effect arises because
+the four market risk categories are not perfectly correlated"
+\citep{gs10k}. The four categories are interest rates, equity prices, currency
+rates and commodity prices. The measure is a one-day 95\% VaR, and the filings
+state that a single model produces both the category figures and the total,
+which matters here: the diversification effect is internal to one model run
+rather than the residual of aggregating four separate ones.
+
+Table~\ref{tab:disclosed} gives the series. Across the ten fiscal years the
+effect has sat between 39.0\% and 45.5\% of summed category VaR, averaging
+42.0\% with a standard deviation of 2.08 percentage points and no discernible
+trend. The dollar figures underneath it move a great deal: summed category VaR
+runs from \$89 million in 2017 to \$209 million in 2022, and total VaR from
+\$54 million to \$114 million over the same two years. The ratio of the two
+barely moves.
+
+\input{tables/table1_disclosed}
+
+The filings are also more specific about method than the tables alone suggest,
+and three of those specifics are load-bearing later. Goldman states that it
+uses "historical simulations with full valuation of market factors at the
+position level by simultaneously shocking the relevant market factors for that
+position"; that it samples "from five years of historical data to generate the
+scenarios"; and that "[t]he historical data is weighted so that the relative
+importance of the data reduces over time," which "gives greater importance to
+more recent observations and reflects current asset volatilities"
+\citep{gs10k}. The FY2016 and FY2017 filings put the factor count at
+approximately 70,000; later filings drop the number. Section~\ref{sec:method}
+adopts the method, the window and the weighting scheme; the decay rate is the
+one piece of the description the filings leave unquantified.
+
+One consequence of the weighting is stated in the filings explicitly: "even if
+our positions included in VaR were unchanged, our VaR would increase with
+increasing market volatility and vice versa" \citep{gs10k}. The disclosed
+measure is therefore expected to respond to volatility without any change in
+exposure, which is the behaviour a static replication can in principle
+reproduce. What a static replication cannot reproduce is a change in exposure,
+and Section~\ref{sec:results} shows that the filings attribute much of the
+year-over-year movement to exactly that.
+
+\subsection{Where the number comes from}
+
+The figures are read out of the Market Risk Management section of each Form
+10-K, filed under CIK 0000886982, for fiscal years 2016 through 2025. None of
+it is available as structured data: the Item 7A tables carry no XBRL tagging,
+so the numbers exist only as HTML table cells, and the cell layout is not
+stable across filings. Six tables are extracted from each filing where
+present: average daily VaR by category, period-end VaR, the year's high and low
+by category, the daily net revenue distribution, and the exception counts at
+the 95\% risk-management measure and the 99\% regulatory one. Appendix A gives
+the full extracted series and the accession number of every filing.
+
+Two features of the disclosures do the work of validating that extraction.
+
+The first is an identity. Total VaR must equal the sum of the four categories
+plus the diversification effect, because that is how the effect is defined. It
+is therefore a property of a correct parse rather than a finding, and it is a
+sharp one: a misread digit, a dropped minus sign or a column misalignment
+breaks it. Across every average-daily row extracted --- 22 rows, since each
+filing restates the prior year, covering 12 distinct disclosure years from 2014
+to 2025 --- the residual is exactly zero. Net revenue bucket counts likewise sum
+to the stated annual totals in all fourteen year-filing pairs that report them.
+
+The second is redundancy. Because each filing restates the preceding year,
+most years appear twice under different source filings, and the two readings
+agree everywhere but once. The FY2023 filing reports 2022 average daily VaR as
+\$113 million total against \$210 million summed, where the FY2022 filing had
+reported \$114 million against \$209 million. The filing explains the change:
+during the first quarter of 2023 Goldman added the currency exposure on certain
+debt and equity positions to VaR, removed certain other positions, and
+conformed the prior period. Both readings satisfy the identity, which is what
+identifies this as a change in the measure's scope rather than a correction of
+an error. Figures used throughout this paper are as first reported, so that a
+methodology change does not sit inside the time series.
+
+Disclosure practice is not perfectly stable either. The 99\% regulatory
+exception count appears in eight of the ten filings but not in the FY2022 or
+FY2023 filings, which report the 95\% count alone. Nothing in this paper
+depends on the missing rows, but they are a reminder that what can be
+reconstructed from disclosure is determined by the filer rather than the
+researcher.
+
+\subsection{Prior work}
+
+The premise that these disclosures carry information is
+\citet{jorion2002informative}'s: reported VaR predicts the variability of
+subsequent trading revenue. What followed has largely asked how good the
+reported numbers are.
+
+Two findings recur. The first is conservatism.
+\citet{perignon2008overstate} study six Canadian banks on daily data from 1999
+to 2005 and find systematic overstatement, two exceptions in 7,354 trading
+days against 74 expected at 99\%, which they attribute partly to banks
+underestimating the diversification effect when aggregating across risk
+categories. \citet{perignon2010level} construct a disclosure-quality index over
+1996 to 2005 and report that historical simulation is by far the most common
+method in practice, and that VaR computed that way carries very little
+information about future volatility. The second is that bank VaR adapts slowly.
+\citet{obrien2017evaluation} find that exceedances at large US banks were
+excessive and clustered during the financial crisis, that a GARCH-based
+benchmark achieved lower exceedance rates without clustering, and that variance
+decompositions show limited ability of bank VaR methodologies to adjust to
+crisis conditions. \citet{campbell2022australia} report the same shape in
+Australia, with VaR too high in quiet periods and too low in stressed ones.
+
+\citet{perignon2010diversification} is the nearest neighbour to this paper. It
+tests whether banks underaccount for diversification across broad risk
+categories, on quarterly observations for four US banks running to the first
+quarter of 2007, and finds no systematic underestimation: disclosed
+diversification effects are close to, and often larger than, the authors' own
+estimates. The level result in Section~\ref{sec:results} corroborates that on a
+different bank, a different period and a different method, and it should be read
+as corroboration rather than discovery. Its sample ends before the financial
+crisis and is quarterly, which leaves the behaviour of a disclosed
+diversification effect across regime breaks as something a longer single-dealer
+series can speak to.
+
+\citet{danielsson2016modelrisk} supply the mechanism this paper's central
+result turns on. They show that model risk, the potential for different
+models to give inconsistent outcomes, rises with market uncertainty:
+candidate models agree in calm periods and diverge significantly in distress.
+Their object is risk forecasts in general rather than a disclosed
+diversification ratio, but the diversification effect is a function of a
+correlation structure estimated from data, and the finding here is a reading of
+their result through that one statistic. Where their models diverge from each
+other, a reconstruction diverges from the thing it reconstructs.
+
+Finally, the methodological literature this paper borrows from directly is
+small and is introduced where it is used:
+\citet{kupiec1995} and \citet{christoffersen1998} for the coverage tests,
+\citet{bcbs1996backtesting} for the supervisory zones,
+\citet{boudoukh1998hybrid} for the age-weighted quantile that implements
+Goldman's disclosed weighting, and \citet{hullwhite1998} with
+\citet{riskmetrics1996} for the volatility-weighted variant.

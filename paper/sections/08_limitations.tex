@@ -1,0 +1,117 @@
+% Drafted against audit/outline.md §8. Two additions to the outline's five
+% bullets, both of which became limitations only after the disclosed-settings
+% rerun: the undisclosed decay rate, and the fact that the disclosed window
+% leaves no room to appeal to a longer one. Recorded in the outline.
+%
+% No new evidence. Everything here is carried from §3, §4 and §7.
+
+\section{Limitations}\label{sec:limitations}
+
+Everything in this section constrains how the results should be read. The two
+that matter most run in opposite directions, and the paper does not claim they
+cancel.
+
+\subsection{Seventeen factors against roughly seventy thousand}
+
+This is the largest single difference between the engine here and Goldman's,
+and it is not fixable from public data. More independent sources of risk means
+more offsetting available in the joint tail, so a seventeen-factor book should
+show \emph{less} diversification than a book with a richer factor set. The
+direction of that bias on the level is therefore known, and it makes the level
+agreement in Section~\ref{sec:results} slightly surprising rather than
+suspicious.
+
+The direction on the steadiness is not known, and that is the more important
+gap. A larger factor set might average out regime shifts in any one
+correlation, which would push toward the disclosed stability; or it might not,
+if the shifts are common across factors, which is what a macro regime change
+usually means. Nothing in public data settles it. Section~\ref{sec:assumptions}
+lists it as a surviving candidate and declines to guess, and the central result
+should be read with that candidate open.
+
+\subsection{Non-synchronous closes}
+
+Tokyo, London and New York do not close at the same instant. A move that
+happens in New York after the Tokyo close appears in the Japanese series only
+the following day, which mechanically depresses measured cross-market
+correlation and therefore \emph{overstates} diversification.
+
+This runs opposite to the factor-count bias. Neither is quantified here, and
+the two are not assumed to offset: they are stated so that a reader knows the
+measured level sits between two unestimated biases of unknown relative size.
+This is also why neither is used anywhere to argue that the result would move
+in a particular direction if corrected.
+
+\subsection{What the calendar intersection costs}
+
+Restricting the panel to days on which every market traded discards about 9\%
+of trading days and leaves 225 to 233 observations a year against the 250 to
+253 Goldman reports. The alternative --- forward-filling closed markets ---
+would plant runs of exact zeros in the scenario set and understate those
+factors' risk, which biases the quantity being measured rather than merely
+reducing the precision of the measurement. The smaller sample is the better of
+two imperfect options, but it does cost power in every test in
+Section~\ref{sec:validation}, and the annual figures rest on fewer observations
+than the disclosures they are compared against.
+
+A related quantisation affects the rate factors. The Treasury curve is quoted
+to the basis point, so at near-zero policy rates the two-year yield shows no
+change at all on 21.1\% of days across the panel and 43.1\% of days in the
+second half of 2020. That is a real feature of the quoted series rather than a
+data error, and it slightly understates true rate variability through the
+near-zero years.
+
+\subsection{Instrument substitutions}
+
+Commodity exposure runs through exchange-traded funds rather than front-month
+futures, for the reason given in Section~\ref{sec:sample}. Funds carry roll
+yield, which drags them away from spot over long horizons. Over the one-day
+horizon the engine uses it is second order, but it is a real difference from a
+spot book and it is not corrected.
+
+The rate sleeve mixes US par coupon bonds with euro zero-coupon bonds, each in
+its source curve's native convention. A zero has longer duration than a par
+bond of the same maturity, so the two are not interchangeable per unit of
+notional. Sizing targets risk rather than notional, which absorbs the
+difference for the purpose of matching the disclosed split, but the instrument
+sets are not identical and a reader comparing notionals across sleeves in
+Table~\ref{tab:book} should not read them as comparable exposures.
+
+\subsection{What the recalibrated book cannot be used for}
+
+The recalibrated book is sized each year using figures Goldman published after
+that year ended: the 2022 sizing uses a figure released in February 2023. That
+is appropriate for the structural comparison it is used for, because the
+question is whether a book with the disclosed risk split generates the
+disclosed co-movement, and the split is the input. It would be indefensible as
+a forecast. This is why only the fixed book, sized once on 2019 and never
+touched again, is backtested, and why the 2020--2025 rows of
+Table~\ref{tab:backtest} are out of sample with respect to sizing.
+
+\subsection{Two limits the disclosed settings impose}
+
+Adopting Goldman's stated method closed some latitude and opened a different
+constraint.
+
+The decay rate behind the disclosed age weighting is not published. The filings
+say the importance of the data reduces over time without saying how fast, so
+the scheme is tested in kind but not at Goldman's own rate. The two rates run
+here were chosen for their half-lives and both move the steadiness the same
+way, which is what makes the conclusion in Section~\ref{sec:assumptions} robust
+to not knowing the rate, but it remains a conclusion about a family of decay
+rates rather than about Goldman's.
+
+The window leaves no further room. Five years is what the filings disclose, so
+the monotone improvement in steadiness with window length cannot be extended by
+appeal to a longer one. That is a limitation on the argument's escape routes
+rather than on its evidence: the result is bounded by what the firm says it
+does.
+
+\subsection{What validation does not cover}
+
+Finally, and most importantly for interpretation: Section~\ref{sec:validation}
+establishes that the engine computes what Section~\ref{sec:method} says it
+computes. It does not establish --- and no test on public data could --- that
+the proxy book resembles Goldman's trading book. The level agreement is
+evidence about the proxy, and the steadiness gap is evidence about what a
+static proxy cannot do. Neither is a measurement of anything inside the firm.

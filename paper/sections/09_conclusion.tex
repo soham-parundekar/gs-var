@@ -1,0 +1,114 @@
+% Drafted against audit/outline.md §9. No new evidence and no new citations.
+% Every figure restated here appears with its verification in §6 or §7.
+
+\section{Conclusion}\label{sec:conclusion}
+
+Goldman Sachs discloses one number in Item 7A that depends on something the
+filing never publishes. The four category VaRs are levels; the diversification
+effect is a relationship, and it is the only line in the table that a reader
+outside the firm can test without knowing a single position. This paper tested
+it, over ten consecutive fiscal years, with a historical-simulation engine run
+at the bank's own disclosed settings on seventeen public risk factors.
+
+The level transfers. A book sized once on 2019 and then left alone averages
+41.6\% of summed category VaR against a disclosed 42.0\%, a difference no test
+on ten annual observations distinguishes from zero. That corroborates
+\citet{perignon2010diversification}, who found disclosed diversification
+effects close to independently estimated ones on four US banks and quarterly
+data ending in early 2007. Finding it again on a different bank, a different
+decade, a different frequency and a different method is worth reporting
+precisely because it is not new: a result that survives that much substitution
+is a result about disclosure practice rather than about one estimation.
+
+The steadiness does not transfer, and that is what this paper adds. Goldman's
+average daily ratio has a year-to-year standard deviation of 2.08 percentage
+points across a decade containing a pandemic, a zero-rate period and more than
+500 basis points of policy tightening. The proxy's is 6.33, a difference a
+variance-ratio test puts at $p = 0.0028$, and the two move oppositely over the
+sample: Goldman's second-half mean is 0.8 points above its first, the proxy's
+8.5 below.
+
+The firm's second disclosed measure says what kind of failure it is. Goldman
+also publishes a period-end snapshot of the same ratio, and that series has a
+standard deviation of 6.72 points. Its diversification effect moves a great
+deal, and what is stable is the annual mean rather than the quantity. Measured
+period-end against period-end, the proxy's variation cannot be distinguished
+from Goldman's. What distinguishes them is persistence: the lag-1
+autocorrelation of consecutive annual values is $-0.47$ for Goldman's average
+daily series and about zero for its period-end series, against roughly $+0.9$
+for both proxy series. Goldman's movements do not carry forward; the proxy's
+do. The proxy reproduces the level, and its variation is the same size as the
+disclosed variation; what it fails to reproduce is the mean reversion, and the
+mean reversion is what the disclosed steadiness consists of.
+
+What makes the result hard to dismiss is that it survives being handed the
+bank's own method. The filings disclose a five-year scenario window and
+age-weighted scenarios, and both were implemented. The window moves the gap the
+right way and runs out of room, since five years is what is disclosed and there
+is no longer window to appeal to, and the weighting moves it the wrong way,
+raising the standard deviation to between 9.46 and 10.04 points while
+simultaneously repairing the engine's coverage, from a 6.98\% exception rate
+that Kupiec rejects below 0.0001 to 5.45\% at $p = 0.328$. The engine gets
+better as a risk model and worse as a reproduction of the disclosed steadiness,
+in the same move. Whatever holds Goldman's ratio still is not in the
+methodology the filings describe, because that methodology has been applied
+here and does not produce it.
+
+Nor is it a matter of having guessed the sleeve directions wrongly. Across all
+sixteen sign configurations the two properties trade off: five are at least as
+steady as the disclosure and the best of those averages 35.6\%, eight reach
+40\% or more and the steadiest of those varies by 3.68 points. None does both.
+That trade-off, rather than any single calibration, is what the sign space
+establishes. It is a descriptive bound on what this engine can produce rather
+than a test --- ten annual observations per configuration will not support one
+--- and it is what an outside party can establish from public data.
+
+Taken with the decomposition above, the paper's contribution is two-part: a
+replication run at the bank's own disclosed settings, which rules out the
+objection that the gap measures a cruder method; and a separation of amplitude
+from persistence using a second disclosed series the firm already publishes,
+which identifies what the gap actually consists of. Neither requires anything
+the filings do not contain.
+
+\subsection*{How much this establishes, and how much it does not}
+
+The claim is narrower than the result might be made to sound. This paper does
+not show that Goldman's disclosed diversification effect is implausible,
+managed, or anything other than what the firm says it is. It shows that a
+static four-sleeve book of public factors cannot reproduce it, under the
+method the firm discloses, across the full space of sign configurations
+available to such a book. Those are different statements, and the second does
+not imply the first.
+
+Three explanations survive the elimination in Section~\ref{sec:assumptions},
+and the paper does not rank them because nothing in the evidence ranks them.
+The factor count, seventeen against roughly seventy thousand, is the
+largest structural difference and its effect on steadiness is simply unknown.
+Non-synchronous closes across time zones bias the measurement in the opposite
+direction to the factor count, and neither bias is quantified. And exposures
+are managed rather than held: in four consecutive filings, FY2021 through
+FY2024, Goldman attributes its year-over-year VaR change to volatility moving
+one way and exposures moving the other. A book whose notionals were fixed in
+2019 has no counterpart to that. It is the one surviving candidate with direct
+documentary support, and the only one whose mechanism matches the shape of the
+discrepancy: a desk that sheds risk into an unwelcome correlation regime and
+restores it afterwards produces a ratio that returns to where it was, which is
+precisely what the proxy's does not do.
+
+\subsection*{What would settle it}
+
+Separating those three requires data that is not public. Position-level or
+desk-level exposures would do it directly: holding the factor set fixed and
+varying only whether positions are repriced or held would isolate exposure
+management from the other two, and a richer factor set run against the same
+book would isolate the factor count. Supervisory data of the kind
+\citet{obrien2017evaluation} worked with would get part of the way, though it
+carries the trading outcomes rather than the diversification decomposition this
+question needs.
+
+Absent any of that, the bound is what an outside party can establish, and
+establishing it is the point. A reader of a 10-K can now say something specific
+about the one line in the market-risk table that is testable from outside: its
+level is reproducible from public data, the size of its variation is
+reproducible too, and its persistence is not, under the bank's own disclosed
+window and weighting, swept across the range the filings leave open.

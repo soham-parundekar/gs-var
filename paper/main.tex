@@ -1,0 +1,154 @@
+% Can a bank's disclosed diversification effect be reproduced from public data?
+% Evidence from ten years of Goldman Sachs Value-at-Risk disclosures.
+%
+% Title form follows the author's previous working paper: a question, then an
+% "Evidence from" subtitle, with the running head a short gerund phrase.
+%
+% Layout follows the author's previous working paper: 11pt letterpaper article,
+% 1in margins, newtx (Times), running head, booktabs tables with a note block
+% under each. That paper departed from its own predecessor by moving to APA
+% author-date; this one inherits the departure rather than repeating it, so
+% apacite is carried over unchanged.
+%
+% Build: latexmk -pdf main.tex   (pdflatex + bibtex; biber is not required)
+
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=1in,headheight=14pt]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{graphicx,booktabs,tabularx,array,multirow}
+\usepackage{caption}
+\usepackage{enumitem}
+\usepackage{setspace}
+
+\usepackage[natbibapa]{apacite}
+
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+% Carried from the previous paper, where a justified line containing the
+% repository URL opened a gap at its hyphen. The glue is removed and the break
+% points restricted to separators no reader would mistake for address
+% characters. Both have to be set after xurl's own begin-document hook.
+\AtBeginDocument{%
+  \Urlmuskip=0mu plus 0mu%
+  \def\UrlBreaks{\do\/\do\.\do\=\do\?\do\&\do\_}%
+  \def\UrlBigBreaks{\do\:}}
+\usepackage{fancyhdr}
+\usepackage{placeins}
+\usepackage{etoolbox}
+
+\providecommand{\SohamLocation}{\textit{India}}
+
+\hypersetup{%
+  pdftitle={Can a bank's disclosed diversification effect be reproduced from
+            public data? Evidence from ten years of Goldman Sachs
+            Value-at-Risk disclosures},
+  pdfauthor={Soham Abhay Parundekar},
+  pdfsubject={Independent replication of Goldman Sachs's disclosed
+              Value-at-Risk diversification effect from public data},
+  pdfkeywords={Value-at-Risk, diversification effect, risk disclosure,
+               historical simulation, backtesting, 10-K}}
+
+\setstretch{1.06}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{3pt}
+\setlength{\emergencystretch}{2em}
+\clubpenalty=10000
+\widowpenalty=10000
+\setlength{\textfloatsep}{13pt plus 3pt minus 3pt}
+\setlength{\floatsep}{11pt plus 2pt minus 2pt}
+\captionsetup{font=small,labelfont=bf,labelsep=period,justification=raggedright,
+              singlelinecheck=false,skip=7pt}
+\setcounter{topnumber}{2}
+\setcounter{totalnumber}{3}
+\renewcommand{\topfraction}{0.90}
+\renewcommand{\textfraction}{0.08}
+\renewcommand{\floatpagefraction}{0.80}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize Reproducing a disclosed diversification effect}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.25pt}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\F}{\mathcal{F}}
+% Objects specific to this paper. The previous paper's macros were for a
+% worst-of payoff and an SVI surface and have no counterpart here.
+\newcommand{\VaR}{\operatorname{VaR}}                 % the risk measure
+\newcommand{\cat}{c}                                  % a risk category
+\newcommand{\cats}{\mathcal{C}}                       % the four categories
+\newcommand{\divef}{D}                                % diversification effect
+\newcommand{\divpct}{d}                               % the same, as a share
+\newcommand{\window}{W}                               % lookback window length
+\newcommand{\cover}{\alpha}                           % coverage level
+\newcommand{\notetext}[1]{\vspace{4pt}\par\noindent{\footnotesize\raggedright #1\par}}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+\renewcommand{\arraystretch}{1.12}
+
+\begin{document}
+
+\thispagestyle{plain}
+\begin{center}
+{\LARGE\bfseries Can a bank's disclosed diversification effect\\
+ be reproduced from public data?\par}
+\vspace{7pt}
+{\large Evidence from ten years of Goldman Sachs Value-at-Risk disclosures\par}
+\vspace{14pt}
+
+{\fontsize{10.1}{11.7}\selectfont\bfseries Soham Abhay Parundekar\par}
+\vspace{1.5pt}
+{\fontsize{8.0}{9.4}\selectfont\href{mailto:parundekarsoham@gmail.com}%
+  {\nolinkurl{parundekarsoham@gmail.com}}\par}
+\vspace{1.0pt}
+{\fontsize{8.5}{10.0}\selectfont Independent Researcher, \SohamLocation\par}
+\end{center}
+\vspace{8pt}
+
+\begin{abstract}
+\input{sections/00_abstract}
+\end{abstract}
+
+\noindent\textit{Keywords:} Value-at-Risk; diversification effect; risk
+disclosure; historical simulation; backtesting.\par
+\noindent\textit{JEL classification:} G21, G28, G32.
+\vspace{8pt}
+
+\input{sections/01_introduction}
+\input{sections/02_disclosed_effect_and_prior_work}
+\input{sections/03_sample_and_data}
+\input{sections/04_method}
+\input{sections/05_validation}
+\input{sections/06_results}
+\input{sections/07_which_assumptions}
+\input{sections/08_limitations}
+\input{sections/09_conclusion}
+\input{sections/declarations}
+
+\begingroup
+\small
+\setlength{\bibsep}{4pt}
+\bibliographystyle{apacite}
+\bibliography{references/references}
+\endgroup
+
+\appendix
+% \appendix letters the sections but leaves floats on the main sequence, so an
+% appendix table would arrive as "Table 11" with no hint of where it lives.
+% counterwithin both prefixes the letter and resets the count per appendix,
+% which a bare \setcounter does only once.
+\counterwithin{table}{section}
+\counterwithin{figure}{section}
+\input{sections/appendix_a_disclosed_series}
+\input{sections/appendix_b_engine}
+\input{sections/appendix_c_regimes}
+
+\end{document}

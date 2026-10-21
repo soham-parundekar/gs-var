@@ -166,7 +166,21 @@ data/processed/         parsed disclosures and model output
 data/README.md          the factor set, the transformations, the known problems
 references/             source register and the preserved filing sections
 reports/report.md       the full write-up
+paper/                  the manuscript written from these results
+  main.tex              the paper; main.pdf is committed beside it
+  sections/             one file per section
+  build/                table, figure and audit scripts
+  audit/                the research commit and digests the paper was frozen at
 ```
+
+The paper reads the committed CSVs under `data/processed/` and writes its own
+tables and figures; it does not re-run anything here. Deleting
+`paper/tables/` and `paper/figures/` and running `paper/build/make_tables.py`
+and `paper/build/make_figures.py` rebuilds them. Thirteen of the fourteen
+tables need nothing but the committed data. Table 3 also reads the aligned
+factor panel for a single date-span sentence, and that panel is the one file
+this repository cannot redistribute, so without it that table is skipped and
+the build reports it.
 
 ## Data
 

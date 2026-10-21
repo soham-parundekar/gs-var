@@ -1,0 +1,201 @@
+% Drafted against audit/outline.md §4, with one addition: a subsection
+% specifying the age-weighted quantile. The outline predates the discovery
+% that Goldman's disclosed weighting had never been implemented, so its
+% bullets do not include it, and the estimator has to be defined formally
+% before §7 can report the sweep that turns on it.
+%
+% Figures from data/processed/book_fixed_notionals.csv and config/params.yaml,
+% hash-recorded in audit/evidence_freeze.csv at commit 1e6bdd74.
+
+\section{Method}\label{sec:method}
+
+\subsection{Instruments, and what full revaluation means here}
+
+Equity, currency and commodity positions are linear in their factor: a one-day
+fractional return on the factor is the fractional profit and loss on the
+position. Interest-rate positions are not. They are repriced by discounting
+their cashflows again at the shocked yield, which is what Goldman's phrase
+``full valuation'' describes, rather than multiplied by a modified duration.
+
+The two rate sub-sleeves keep their source's native convention. US positions
+are par coupon bonds priced off the Treasury par yield curve with semiannual
+coupons; euro positions are zero-coupon bonds priced off the ECB spot curve
+with annual compounding. The alternative would be to convert one curve into the
+other's convention, which needs a bootstrap the published data does not
+support at these tenors. The cost of keeping both is that a dollar of euro zero
+and a dollar of US par bond are not interchangeable: a zero has longer duration
+than a par bond of the same maturity, so the sleeves differ per unit of
+notional. The sizing described below targets risk rather than notional, which
+absorbs the difference, but the instrument sets are not identical and
+Section~\ref{sec:limitations} records that.
+
+Writing $P(y, m)$ for the price of the relevant instrument at yield $y$ and
+maturity $m$, the scenario return for a rate position under a historical yield
+change $\Delta y_{s}$ observed on day $s$ is
+\begin{equation}
+r_{s} = \frac{P(y_{t} + \Delta y_{s},\, m)}{P(y_{t},\, m)} - 1 ,
+\label{eq:revaluation}
+\end{equation}
+where $y_{t}$ is the yield at the close of the valuation date. The level enters
+as well as the change, which is why the engine carries both: the same 25 basis
+point move is worth a different amount of money at a 0.5\% yield than at a 5\%
+one. Equation~\eqref{eq:revaluation} is also where convexity enters, and
+Section~\ref{sec:assumptions} reports what it is worth by running the same
+scenarios through the first-order approximation
+$r_{s} \approx -D_{\mathrm{mod}}(y_{t}, m)\,\Delta y_{s}$ instead.
+
+\subsection{Sizing within a sleeve, and sizing the sleeve against the disclosure}
+
+Sizing happens in two stages, and only the second touches the disclosures.
+
+Within a sleeve, instruments are weighted so that each contributes equal
+standalone VaR over the calibration window. This is a neutrality choice rather
+than an empirical claim: nothing is disclosed about the composition of
+Goldman's rate book, so loading the sleeve onto any one tenor would be an
+assumption with no support. Equal risk contribution is the weighting that
+requires no such assumption.
+
+The sleeve as a whole is then scaled so that its average daily VaR across the
+calibration year equals the figure Goldman disclosed for that category. The
+scaling is available in closed form, which is worth stating because it is the
+design of the experiment rather than a computational convenience. Profit and
+loss on every position here is proportional to its notional, so for a sleeve
+$\cat$ with notionals $\mathbf{n}$ scaled by $k > 0$,
+\begin{equation}
+\VaR_{\cat}(k\mathbf{n}) = k \, \VaR_{\cat}(\mathbf{n}) ,
+\label{eq:homogeneity}
+\end{equation}
+and the same proportionality carries through the average over the year. One
+division per sleeve therefore lands exactly on the disclosed target.
+Section~\ref{sec:validation} confirms that it does, to machine precision.
+
+Equation~\eqref{eq:homogeneity} is positive homogeneity, which is one of the
+four axioms \citet{artzner1999coherent} use to define a coherent risk measure
+and one of the three VaR actually satisfies. It is worth naming because the
+axiom VaR fails --- subadditivity --- is the subject of this paper's central
+quantity, and the calibration leans on the one property that holds while the
+experiment measures the one that does not.
+
+The consequence is that the summed category VaR matches the disclosures by
+construction and carries no information whatever. That is deliberate. Fixing
+the four category figures leaves total VaR and hence the diversification effect
+entirely free, because the total depends on how the four sleeves move together
+and nothing in the calibration constrains that. Comparing the free quantity
+against its disclosed counterpart is the experiment; the matched quantities are
+the control.
+
+Table~\ref{tab:book} gives the resulting book. Its dollar level is a
+normalisation and should not be read as an estimate of anything: only the
+ratios between sleeves carry meaning, and those come from the disclosures.
+
+\input{tables/table4_book}
+
+\subsection{The engine and its timing convention}
+
+For a valuation date $t$, the scenario set is the $\window$ most recent daily
+factor moves up to and including $t$, applied to the book as it stands at the
+market levels of $t$. Each scenario produces one profit-and-loss outcome per
+sleeve and one for the book as a whole, and VaR is the loss at the
+$\cover$ quantile of that distribution, reported as a positive number. Category
+VaR uses only that category's positions. Total VaR moves every factor together,
+historical day by historical day, which is what preserves the co-movement the
+paper is testing. The diversification effect is
+\begin{equation}
+\divef_{t} = \VaR_{t}^{\text{total}} - \sum_{\cat \in \cats} \VaR_{t}^{\cat} ,
+\qquad
+\divpct_{t} = \frac{-\divef_{t}}{\sum_{\cat \in \cats} \VaR_{t}^{\cat}} ,
+\label{eq:diversification}
+\end{equation}
+following Goldman's definition exactly, with $\divpct_{t}$ the share reported
+throughout this paper.
+
+The settings are the disclosed ones where the filings supply them:
+$\window = 1{,}260$ trading days, which is the five years Goldman states it
+samples from, and $\cover = 0.05$ for the 95\% risk-management measure. The
+quantile is read off the finite scenario set by linear interpolation; the
+discrete order statistic is the conservative alternative and
+Section~\ref{sec:assumptions} reports the difference rather than assuming it
+away. Appendix~\ref{sec:appendix_b} gives the reading conventions in full,
+together with the argument behind the closed-form calibration and the
+look-ahead probe.
+
+The timing convention is stated explicitly because getting it wrong produces a
+model that looks better than it is. VaR dated $t$ uses only the book, the
+levels and the scenarios available at the close of $t$, and it is compared
+against the profit and loss realised on $t+1$. No quantity dated $t+1$ enters
+the VaR dated $t$. This is Goldman's own convention: the filings state that
+daily net revenues are compared with VaR calculated as of the end of the prior
+business day. Section~\ref{sec:validation} describes the test that
+enforces it.
+
+\subsection{Scenario age weighting}
+
+Goldman states that its historical data is weighted so that the importance of
+older observations decays. Implementing that replaces the equally weighted
+quantile with a weighted one, following the hybrid approach of
+\citet{boudoukh1998hybrid}. A scenario observed $k$ trading days before the
+valuation date enters with weight
+\begin{equation}
+w_{k} = \frac{\lambda^{k}}{\sum_{j=0}^{\window-1} \lambda^{j}} ,
+\qquad \lambda \in (0, 1] ,
+\label{eq:ageweights}
+\end{equation}
+and VaR is read at the point where cumulative weight, rather than cumulative
+count, reaches $\cover$. At $\lambda = 1$ every weight is $1/\window$ and the
+estimator returns to the equally weighted percentile.
+
+Two properties of the implementation matter for interpreting
+Section~\ref{sec:assumptions}. The first is that the collapse at $\lambda = 1$
+is exact, in both the interpolated and the discrete reading, which
+Section~\ref{sec:validation} reports as a test: any difference between a
+weighted and an unweighted run is therefore the weighting and not a change of
+estimator. The second is that $\lambda$ is not disclosed. The filings describe
+the scheme but not its rate, so the baseline keeps $\lambda = 1$, leaving no
+undisclosed parameter inside it, and the rate is swept instead, at values
+chosen for their half-lives rather than for how close they land to the
+disclosures.
+
+\subsection{Two books, and what each is for}
+
+Two books are run, and conflating them would be a mistake.
+
+The \emph{recalibrated} book is resized every year to that year's own disclosed
+split. Its exposure mix tracks the disclosures exactly, which removes the
+exposure mix from the comparison and leaves only the cross-category
+correlations in the public data. It is the right book for asking whether the
+diversification effect comes out where Goldman reports it. It is not a
+forecast, and could not be: sizing the 2022 book uses a figure published in
+February 2023.
+
+The \emph{fixed} book is sized once, on 2019, and then left alone. Nothing
+about it responds to anything disclosed afterwards, so the path its VaR takes
+is driven purely by what happened to volatility and correlation. It is the
+right book for the regime comparison, and the only defensible one for
+backtesting, because its notionals were set before any of the data it is scored
+on. 2019 is the base year because it is calm and precedes everything the
+backtest scores, which makes 2020 onward out of sample with respect to sizing.
+
+\subsection{The volatility-weighted variant}
+
+One variant is run alongside the disclosed specification, because it addresses
+a failure the disclosed specification has.
+\citet{hullwhite1998} rescale each historical return by the ratio of today's
+conditional volatility to the volatility in force when the return was observed,
+so the scenario set is restated in current volatility units before the
+percentile is taken. Volatility is estimated by exponentially weighted variance
+with the \citet{riskmetrics1996} daily decay factor of 0.94, and the estimator
+is causal by construction: the forecast stamped $t$ uses only moves up to $t$.
+A GARCH(1,1) alternative is refitted each January on the history available at
+that point.
+
+Realised profit and loss always comes from the unscaled moves. What the book
+actually made on $t+1$ is not a function of which model forecast it, and
+scaling the outcome as well as the scenarios would make the backtest circular.
+
+Age weighting and volatility weighting are easy to confuse and do different
+things. Age weighting changes how much a scenario counts according to when it
+happened. Volatility weighting changes the size of the scenario itself
+according to the volatility regime it came from. Both turn out to repair the
+engine's coverage, and neither repairs the diversification result, for a reason
+Section~\ref{sec:assumptions} develops: both act on the scale of the scenario
+set, and the diversification effect is a function of its correlation structure.

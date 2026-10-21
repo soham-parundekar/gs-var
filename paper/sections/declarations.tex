@@ -1,0 +1,65 @@
+% Unnumbered back matter, in the same set and the same order as the author's
+% previous working paper: Funding, Disclosure statement, Data availability
+% statement, Code availability, Declaration of generative AI use.
+%
+% The availability statements are written for this project rather than carried
+% over, which is what the previous paper did relative to its own predecessor:
+% the inputs here are ten SEC filings and three public market-data endpoints,
+% not pricing supplements and option chains, so copying that text would
+% describe a study that does not exist.
+%
+% The generative-AI-use declaration keeps the earlier paper's wording and
+% position. As in that paper, this section is a documented exception to the
+% repository's vocabulary check and should be listed as such wherever that
+% check is run.
+
+\section*{Funding}
+The author declares no external funding.
+
+\section*{Disclosure statement}
+The author declares no competing financial interests. The author holds no
+position in, and has no commercial relationship with, The Goldman Sachs Group,
+Inc.
+
+\section*{Data availability statement}
+Every input to this study is public. The ten Form 10-K filings are listed with
+their accession numbers in Table~\ref{tab:manifest} and remain retrievable from
+EDGAR; the Market Risk Management section of each is preserved verbatim under
+\texttt{references/sec\_filings/}, which is the text every disclosed figure was
+read from, and the parsed series are tracked as CSV so the disclosed side of
+every comparison can be inspected without running anything.
+
+The market data behind the factor panel cannot be preserved the same way. The
+US Treasury par yield curve is a work of the US government and the European
+Central Bank's euro area curve is openly licensed with attribution; either
+could be redistributed. The exchange-traded closes come from a commercial
+endpoint whose terms do not permit redistribution, and because the aligned
+panel interleaves all three sources, no part of it is tracked. What is tracked
+is \texttt{scripts/02\_build\_factors.py}, which rebuilds the panel from the
+same public endpoints over the window recorded in \texttt{config/params.yaml}.
+A reader reproducing this paper regenerates the factor data rather than
+receiving it.
+
+\section*{Code availability}
+The disclosure retrieval and parser, the factor construction, the
+Value-at-Risk engine, the calibration, the backtest, the regime and robustness
+analyses and the test suite described in Section~\ref{sec:validation} are all
+available in the repository. Every table and figure in this paper is generated
+from the tracked analysis outputs by a script under the manuscript's own
+\texttt{build/} directory; none is transcribed by hand, and deleting the
+generated files and rerunning those scripts reproduces the manuscript
+unchanged. One exception is worth naming: Table~\ref{tab:factorstats} reads
+the aligned factor panel for the sentence recording how many trading days it
+spans, and that panel is the one input not tracked, for the reason given
+above. Rebuilding it restores the table; skipping it costs that table and
+nothing else. The commit the reported results were produced from, together with a
+SHA-256 digest of each analysis output they depend on, is recorded under
+\texttt{audit/}, so a reader can confirm that a given number corresponds to the
+state of the code that produced it.
+
+\section*{Declaration of generative AI use}
+During the preparation of this work, the author used Claude in order to revise
+and restructure the manuscript, prepare the plotting script, literature checks
+and LaTeX preparation. After using this tool/service, the author reviewed and
+edited the content as needed and takes full responsibility for the content of
+the published article.

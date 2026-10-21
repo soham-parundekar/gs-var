@@ -1,0 +1,143 @@
+% Drafted against audit/outline.md §1. Every figure in this section is read
+% from data/processed/diversification_comparison.csv,
+% robustness_sign_variants.csv, robustness_windows.csv and
+% robustness_age_weighting.csv in the frozen research repository; all four are
+% hash-recorded in audit/evidence_freeze.csv at commit 1e6bdd74.
+
+\section{Introduction}\label{sec:introduction}
+
+Every large dealer that reports market risk under Item 7A of Form 10-K
+publishes a table with roughly the same shape. Average daily Value-at-Risk is
+broken out by risk category, the categories are added up, and a single negative
+line is subtracted to arrive at the firmwide figure. Goldman Sachs calls that
+line the diversification effect, and defines it as the difference between total
+VaR and the sum of the VaRs of its four risk categories: interest rates, equity
+prices, currency rates and commodity prices. Every other entry in the table is
+a level. How much could be lost on rates, on equities, on currencies, on
+commodities. The diversification line is not a level. It is the only number in
+the table that depends on how those four exposures move against one another,
+and co-movement is the one input the filing never publishes.
+
+That asymmetry is what makes the line testable from outside, and it is also
+what bounds any such test. A reader cannot check a disclosed interest-rate VaR
+without knowing the rate book. A reader who builds a portfolio consistent with
+the disclosed split of risk across categories, and exposes it to public market
+data, can at least ask whether the co-movement that portfolio generates
+resembles the co-movement the filing reports. That is the exercise here, and
+the portfolio is a proxy throughout. It is calibrated so that each sleeve
+carries the share of standalone risk that Goldman discloses for the
+corresponding category; it is not a reconstruction of Goldman's positions, and
+its dollar size is a normalisation that carries no information. What is being
+tested is whether a static book with the disclosed risk structure, driven by
+public factors, produces the disclosed diversification. Nothing in the paper
+identifies a position, a desk, or a hedge.
+
+The disclosures themselves make the test worth running, and they are more
+specific about method than the VaR tables alone suggest.
+\citet{jorion2002informative} showed that bank VaR disclosures are informative
+about subsequent trading volatility, which is the premise any replication
+presumes. The literature that followed has concentrated on the quality and the
+conservatism of the reported numbers: \citet{perignon2010level} graded
+disclosure practice across a cross-section of commercial banks,
+\citet{perignon2008overstate} asked whether the levels banks report are
+systematically too high, and \citet{perignon2010diversification} examined the
+diversification component directly, on quarterly observations for four US banks
+running to the first quarter of 2007. Those studies work across institutions,
+and at the reporting frequency their data allow.
+
+This paper adds three things to that base. The first is a single-dealer series
+long enough to contain regime breaks rather than straddle one. Goldman's
+diversification effect is reconstructed from ten consecutive filings covering
+fiscal years 2016 through 2025, a decade that includes the March 2020
+dislocation and the 2022--2023 tightening cycle. The second is a replication
+run at the bank's own disclosed settings. Every filing in the sample states
+that Goldman computes VaR by historical simulation with full valuation, samples
+its scenarios from five years of historical data, and weights that data so that
+the importance of older observations decays. All three are implemented here, on
+seventeen factors drawn from the US Treasury and ECB curves and from
+exchange-traded prices, with the interest-rate sleeve valued by full bond
+revaluation rather than by a duration approximation. The engine is therefore
+capable of disagreeing with the disclosure in a way that an identity built out
+of the disclosed numbers cannot, and when it does disagree the disagreement
+cannot be attributed to a cruder method. The third is a decomposition. Goldman discloses the same quantity twice, as an
+annual average and as a period-end snapshot, and comparing each against its
+proxy analogue separates how far the ratio moves from whether those movements
+persist. The separation is what turns a failure to reproduce stability into a
+specific claim about mean reversion, and it uses only what the filings already
+publish. Running the complete space of sign configurations for the four sleeves
+then bounds how closely a static book can match the level and the steadiness at
+once, which turns out to be the binding constraint.
+
+The disclosed series is remarkably flat. Across the ten years the
+diversification effect ranges from 39.0\% to 45.5\% of summed category VaR,
+with a mean of 42.0\% and a standard deviation of 2.08 percentage points. A
+regression on the year index finds no trend ($p = 0.23$). A decade containing a
+pandemic, a zero-rate period and more than 500 basis points of policy
+tightening moved the reported co-movement of Goldman's four risk categories by
+about two points of standard deviation, and moved it in no particular
+direction.
+
+The replication reproduces that level and does not reproduce that steadiness.
+At the disclosed five-year window, a book sized once on 2019 and then left
+alone averages 41.6\% against the disclosed 42.0\%; the two levels are
+statistically indistinguishable ($p = 0.84$). Its standard deviation across
+those years is 6.33 percentage points against the disclosed 2.08, a difference
+a variance-ratio test puts at $p = 0.0028$. And the two move differently over
+the decade: Goldman's second-half mean sits 0.8 points above its first, while
+the proxy's sits 8.5 points below.
+
+Goldman's second disclosed measure of the same quantity says what kind of
+failure it is. Alongside the average daily figure the filings give a period-end
+snapshot, and that series has a standard deviation of 6.72 points: the firm's
+diversification ratio moves a great deal, and what is steady is its mean over a
+year rather than the ratio itself. Measured period-end against period-end the
+proxy's variation is statistically indistinguishable from Goldman's. What
+separates them is persistence. The lag-1 autocorrelation of consecutive annual
+values is $-0.47$ for Goldman's average daily series and essentially zero for
+its period-end series, against roughly $+0.9$ for both proxy series: Goldman's
+movements do not carry forward and the proxy's do. What fails to transfer is
+therefore not stability but mean reversion, and mean reversion is what the
+disclosed steadiness consists of.
+
+The natural objection is that a proxy book on seventeen factors is simply a
+blunter instrument than the bank's, and that the gap measures the crudeness of
+the replication. Adopting Goldman's disclosed age weighting tests that
+objection directly, and refutes it. Weighting the scenario set toward recent
+observations raises the year-to-year standard deviation from 6.33 to between
+9.46 and 10.04 points, four to five times the disclosed figure, across decay
+rates with half-lives of three weeks and three months. It does so while making
+the engine a demonstrably better risk model: the exception rate falls from
+6.98\% to 5.45\% against a nominal 5\%, and the Kupiec proportion-of-failures
+test moves from rejecting the model below any conventional level to a $p$-value
+of 0.328. The disclosed weighting is the correct specification, the filings say
+so, and applying it widens the stability gap rather than closing it.
+
+Nor is the gap an artefact of one calibration of the sleeves. The four can be
+signed in sixteen ways and all sixteen were run. Taking the disclosed standard
+deviation itself as the bar, five configurations are at least that steady and
+the highest of those averages 35.64\%, six points below the disclosure; eight
+average 40\% or more and the steadiest of those varies by 3.68 points a year.
+No configuration achieves both. Within this engine the two properties of the
+disclosed series trade off against each other, and that frontier, rather than
+any single calibration, is the paper's central result. It also points at what a
+static book omits. A dealer that reprices positions daily, and whose hedges
+respond to the correlations it observes, can hold a diversification ratio
+steady in a way that a fixed portfolio exposed to the same market cannot.
+Goldman's own filings attribute its year-over-year VaR changes to exposure
+movements as well as to volatility in four consecutive years.
+
+The remainder of the paper is organised as follows. Section~\ref{sec:disclosed}
+sets out what Goldman discloses, how the series was extracted from the filings,
+and where this exercise sits relative to prior work.
+Section~\ref{sec:sample} describes the factor panel and the choices that shaped
+it. Section~\ref{sec:method} specifies the historical-simulation engine, the
+disclosed settings it adopts, and the calibration that ties the proxy book to
+the disclosed split. Section~\ref{sec:validation} reports the validation:
+unit-level checks, independent reproduction of the backtest statistics, and the
+formal coverage tests applied to the engine's own output.
+Section~\ref{sec:results} presents the comparison against the disclosures and
+Section~\ref{sec:assumptions} isolates which assumptions the stability result
+depends on. Section~\ref{sec:limitations} states what the exercise cannot
+establish, and Section~\ref{sec:conclusion} concludes. Code, extracted
+disclosures and model output are available in the repository cited in the data
+availability statement.

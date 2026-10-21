@@ -1,0 +1,67 @@
+% Appendix B. Implementation detail that would interrupt §4 but that a
+% reader reimplementing the engine needs. No floats.
+
+\section{Engine specification}\label{sec:appendix_b}
+
+This appendix records three implementation details that Section~\ref{sec:method}
+states but does not develop.
+
+\subsection*{Reading the quantile off a finite scenario set}
+
+With $\window = 1{,}260$ scenarios and $\cover = 0.05$, the 5\% point falls
+between the 63rd and 64th worst outcome, and the convention for reading it is
+not disclosed. Two are implemented. Linear interpolation between the bracketing
+order statistics is the default. The discrete reading takes the $\lceil \cover
+\window \rceil$th worst outright, which is the more conservative of the two and
+what a bank wishing to avoid understating risk would choose.
+
+The ceiling matters rather than the floor. Flooring agrees with the ceiling
+whenever $\cover\window$ is fractional and silently picks the wrong side
+whenever it is a whole number, which is precisely the case a unit test is
+likely to be written around. Section~\ref{sec:assumptions} reports the
+difference between the two conventions: 0.30\% of the VaR level and 0.06
+percentage points of the mean diversification ratio.
+
+Under age weighting the same two conventions carry over, with cumulative weight
+in place of cumulative count. The weighted interpolation uses the plotting
+position $(F_{j} - w_{j}) / (1 - w_{j})$, where $F_{j}$ is cumulative weight
+through the $j$th ordered outcome. Under equal weights this reduces to
+$(j-1)/(\window-1)$, which is what the unweighted percentile interpolates
+against, so the two estimators coincide exactly at $\lambda = 1$. That identity
+is what Section~\ref{sec:validation} pins to machine precision, and it is the
+reason the age-weighting results in Section~\ref{sec:assumptions} can be read
+as effects of the weighting rather than of a change of estimator.
+
+\subsection*{Why the sleeve calibration is closed form}
+
+Every position in the proxy book has profit and loss proportional to its
+notional: a linear position returns the factor's return times notional, and a
+bond position returns the revaluation ratio of
+Equation~\eqref{eq:revaluation} times notional. Scaling a sleeve's notionals by
+$k$ therefore scales every scenario outcome for that sleeve by $k$, which
+scales the order statistics by $k$, which scales the sleeve's VaR by $k$ on
+every date and hence its average over any period. Equation~\eqref{eq:homogeneity}
+follows, and one division per sleeve lands on the disclosed target exactly.
+
+The property is positive homogeneity, the third of the four axioms in
+\citet{artzner1999coherent}. No iteration or search is involved, which is why
+Table~\ref{tab:sizing} reports a residual at the scale of floating-point noise
+rather than a convergence tolerance. Had the book contained options or any
+other position whose value is non-linear in notional, the argument would fail
+and the calibration would need solving numerically.
+
+\subsection*{The look-ahead probe}
+
+The timing convention --- VaR dated $t$ from scenarios up to $t$, scored
+against the outcome on $t+1$ --- is enforced by a test rather than by
+inspection, because look-ahead is the one error class that makes a model look
+better rather than worse.
+
+The probe multiplies every factor move after a cut-off date by 25 and re-runs
+the engine on the tampered panel. Every column dated on or before the cut-off
+must be identical to its untampered value. The realised profit-and-loss column
+is excluded, because that column is supposed to change: it carries the outcome
+of the following day, which is exactly what the tampering alters. A separate
+test confirms that the realised result recorded against date $t$ is the book
+repriced on the move of $t+1$ rather than of $t$, which is the off-by-one that
+would make the backtest meaningless while leaving every number plausible.
