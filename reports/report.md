@@ -521,9 +521,13 @@ semiannual bond at a 6% yield prices at 92.5612626), prices par bonds at exactly
 derivative. Convexity has the correct sign in both directions.
 
 The Kupiec statistic reproduces an independent implementation on two published
-cases to five decimals: 1,043 observations with 57 failures at 95% gives
-0.46147 with a p-value of 0.49694, and 17 failures at 99% gives 3.51180 and
-0.060933. Its analytic limits hold (zero exceptions give −2T·ln(1−p); a failure
+cases. At 1,043 observations with 57 failures at 95% the published statistic is
+0.46147 and this one returns 0.4614664, which agrees to the five decimals the
+published figure carries. At 17 failures and 99% the published statistic is
+3.51180 against 3.5118129 here, a difference of 1.3e-05: the published figure
+is not the correctly rounded five-decimal value, which would be 3.51181, so
+agreement is to within that tolerance rather than digit for digit. Both
+p-values, 0.49694 and 0.060933, match exactly. Its analytic limits hold (zero exceptions give −2T·ln(1−p); a failure
 rate exactly equal to coverage gives zero) and a Monte Carlo under the null
 gives empirical size of 4.8 to 5.8% at a nominal 5%.
 

@@ -157,8 +157,12 @@ daily decay factor of 0.94. Now maintained by MSCI.
 Management Toolbox. Used as an independent implementation to validate the Kupiec
 statistic in this project: 1,043 observations with 57 failures at 95% gives
 0.46147 with a p-value of 0.49694, and 17 failures at 99% gives 3.51180 and
-0.060933. Both are reproduced to five decimals in
-`tests/test_backtest.py`.
+0.060933. Both p-values are reproduced exactly. The first statistic is
+reproduced to the five decimals shown; the second computes to 3.5118129 here,
+1.3e-05 away from the displayed 3.51180, which is itself not the correctly
+rounded five-decimal value of 3.51181. The test therefore asserts the
+statistics to 1e-4 and the p-values to 1e-5, which is documented in
+`tests/test_backtest.py` rather than left as an unexplained tolerance.
 <https://www.mathworks.com/help/risk/varbacktest.pof.html>
 
 ## Which component depends on what

@@ -28,6 +28,16 @@ def indicator(failures: int, observations: int) -> pd.Series:
 def test_kupiec_matches_an_independent_implementation(
     observations, failures, coverage, statistic, p_value
 ):
+    """Both cases come from MATLAB's varbacktest.pof documentation.
+
+    The tolerances are not arbitrary. The p-values match exactly, and the
+    first statistic matches to the five decimals the documentation shows. The
+    second does not: 17 failures at 99% computes to 3.5118129 here against a
+    displayed 3.51180, which is 1.3e-05 away and is not the correctly rounded
+    five-decimal value of 3.51181. The displayed figure is rounded or
+    truncated differently, so the statistic is asserted to 1e-4 rather than
+    pretending to digit-for-digit agreement it does not have.
+    """
     result = bt.kupiec_pof(indicator(failures, observations), coverage)
     assert result.statistic == pytest.approx(statistic, abs=1e-4)
     assert result.p_value == pytest.approx(p_value, abs=1e-5)
