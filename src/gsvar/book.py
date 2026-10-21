@@ -105,7 +105,7 @@ def scenario_returns(
     For a linear holding this is just the factor's return. For a bond it is a
     full repricing: the cashflows are discounted again at the shocked yield,
     not multiplied by a duration. `base_levels` carries the yield the shock is
-    applied to, which is why the engine keeps levels around and not only moves.
+    applied to, which is why the engine carries levels as well as moves.
 
     Setting `linearised` replaces the bond repricing with its first-order
     duration approximation, which is what a delta-normal model would use. It
